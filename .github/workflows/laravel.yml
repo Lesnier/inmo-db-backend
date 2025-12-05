@@ -290,7 +290,7 @@ jobs:
           echo "========================================="
 
           # Navigate to project directory
-          cd /home/u403607455/domains/inmodb.net/public_html/admin || exit 1
+          cd ${{ secrets.DEPLOY_PATH }} || exit 1
 
           # Backup current .env if exists
           if [ -f .env ]; then
@@ -298,23 +298,31 @@ jobs:
             cp .env .env.backup.$(date +%Y%m%d_%H%M%S)
           fi
 
+          # Initialize Git repository if it doesn't exist
+          if [ ! -d .git ]; then
+            echo "[2/10] Initializing Git repository..."
+            git init
+            git remote add origin ${{ github.repositoryUrl }}
+            echo "✓ Git repository initialized"
+          fi
+
           # Git operations
-          echo "[2/10] Fetching latest changes from Git..."
+          echo "[3/10] Fetching latest changes from Git..."
           git fetch origin ${{ github.ref_name }}
 
-          echo "[3/10] Pulling latest code..."
-          git pull origin ${{ github.ref_name }}
+          echo "[4/10] Pulling latest code..."
+          git reset --hard origin/${{ github.ref_name }}
 
           # Composer dependencies
-          echo "[4/10] Installing/Updating Composer dependencies..."
+          echo "[5/10] Installing/Updating Composer dependencies..."
           composer install --no-dev --optimize-autoloader --no-interaction
 
           # Update .env file
-          echo "[5/10] Updating .env file..."
+          echo "[6/10] Updating .env file..."
           # The .env file will be uploaded separately via SCP
 
           # Laravel optimizations
-          echo "[6/10] Running Laravel optimizations..."
+          echo "[7/10] Running Laravel optimizations..."
 
           # Clear all caches
           php artisan config:clear
@@ -332,7 +340,7 @@ jobs:
           fi
 
           # Storage link for Voyager
-          echo "[7/10] Verifying storage symlink..."
+          echo "[8/10] Verifying storage symlink..."
           if [ ! -L public/storage ]; then
             echo "Creating storage symlink..."
             php artisan storage:link
@@ -341,7 +349,7 @@ jobs:
           fi
 
           # Set correct permissions
-          echo "[8/10] Setting directory permissions..."
+          echo "[9/10] Setting directory permissions..."
           chmod -R 775 storage bootstrap/cache
 
           # Check if www-data user exists, otherwise use apache or current user
@@ -352,17 +360,16 @@ jobs:
           fi
 
           # Database migrations (optional, uncomment if needed)
-          # echo "[9/10] Running database migrations..."
+          # echo "[10/10] Running database migrations..."
           # php artisan migrate --force
 
           # Clear opcache if available
-          echo "[9/10] Clearing OPCache..."
+          echo "[10/10] Clearing OPCache..."
           if command -v php-fpm &> /dev/null; then
             killall -USR2 php-fpm 2>/dev/null || true
           fi
 
           # Final cleanup
-          echo "[10/10] Final cleanup..."
           composer dump-autoload
 
           echo "========================================="
@@ -379,7 +386,7 @@ jobs:
             -o StrictHostKeyChecking=no \
             -p ${{ secrets.SSH_PORT }} \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            'mkdir -p /home/u403607455/domains/inmodb.net/public_html/admin && chmod 755 /home/u403607455/domains/inmodb.net/public_html/admin && ls -la /home/u403607455/domains/inmodb.net/public_html/admin/'
+            'mkdir -p ${{ secrets.DEPLOY_PATH }} && chmod 755 ${{ secrets.DEPLOY_PATH }} && ls -la ${{ secrets.DEPLOY_PATH }}/'
 
       - name: Upload .env file to server
         run: |
@@ -387,7 +394,7 @@ jobs:
             -o StrictHostKeyChecking=no \
             -P ${{ secrets.SSH_PORT }} \
             .env \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/u403607455/domains/inmodb.net/public_html/admin/.env
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/.env
 
       - name: Upload and execute deployment script
         run: |
@@ -412,7 +419,7 @@ jobs:
             -o StrictHostKeyChecking=no \
             -p ${{ secrets.SSH_PORT }} \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            'cd /home/u403607455/domains/inmodb.net/public_html/admin && php artisan --version'
+            'cd ${{ secrets.DEPLOY_PATH }} && php artisan --version'
 
       - name: Cleanup
         if: always()

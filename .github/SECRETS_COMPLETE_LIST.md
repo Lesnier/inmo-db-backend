@@ -5,7 +5,7 @@
 
 ---
 
-## 🔐 SECRETS DE SSH (4 obligatorios)
+## 🔐 SECRETS DE SSH (5 obligatorios)
 
 ```
 SSH_HOST
@@ -35,6 +35,13 @@ SSH_PRIVATE_KEY
           ...contenido de la clave...
           -----END OPENSSH PRIVATE KEY-----
   Ver guía de generación abajo ⬇️
+
+DEPLOY_PATH
+  Descripción: Ruta absoluta del directorio de deployment en el servidor
+  Ejemplo: /home/u403607455/domains/inmodb.net/public_html/admin
+          /home/usuario/public_html/app
+  Dónde obtenerlo: Conectarse via SSH y ejecutar: pwd
+  IMPORTANTE: Debe ser la ruta completa desde la raíz del sistema
 ```
 
 ---
@@ -243,13 +250,14 @@ DEV_AWS_BUCKET
 
 ## 📋 RESUMEN - Secrets Mínimos Requeridos para Empezar
 
-### Para SOLO Production (19 secrets mínimos):
+### Para SOLO Production (20 secrets mínimos):
 
-**SSH (4):**
+**SSH (5):**
 - SSH_HOST
 - SSH_PORT
 - SSH_USER
 - SSH_PRIVATE_KEY
+- DEPLOY_PATH
 
 **App (3):**
 - PROD_APP_NAME
@@ -363,6 +371,7 @@ SSH_USER=usuario_cpanel
 SSH_PRIVATE_KEY=-----BEGIN OPENSSH PRIVATE KEY-----
 (contenido de la clave)
 -----END OPENSSH PRIVATE KEY-----
+DEPLOY_PATH=/home/u403607455/domains/inmodb.net/public_html/admin
 
 PROD_APP_NAME="Plusvalia Admin"
 PROD_APP_KEY=base64:abc123def456... (generado con php artisan key:generate --show)

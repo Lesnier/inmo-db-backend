@@ -36,13 +36,14 @@ Notify (Resultado del deployment)
 
 📋 **Ver lista completa y detallada en:** [SECRETS_COMPLETE_LIST.md](SECRETS_COMPLETE_LIST.md)
 
-Resumen de secrets mínimos necesarios (19 para production):
+Resumen de secrets mínimos necesarios (20 para production):
 
-### SSH (4 obligatorios)
+### SSH (5 obligatorios)
 - `SSH_HOST` - Host del servidor
 - `SSH_PORT` - Puerto SSH (ej: 65002, 22)
 - `SSH_USER` - Usuario SSH
 - `SSH_PRIVATE_KEY` - Clave privada SSH
+- `DEPLOY_PATH` - Ruta de deployment (ej: /home/usuario/domains/midominio.com/public_html/admin)
 
 ### Production - App (3 obligatorios)
 - `PROD_APP_NAME`
