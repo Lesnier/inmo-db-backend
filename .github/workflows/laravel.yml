@@ -290,7 +290,7 @@ jobs:
           echo "========================================="
 
           # Navigate to project directory
-          cd /public_html/admin || exit 1
+          cd /home/u403607455/domains/inmodb.net/public_html/admin || exit 1
 
           # Backup current .env if exists
           if [ -f .env ]; then
@@ -372,13 +372,22 @@ jobs:
 
           chmod +x deploy.sh
 
+      - name: Verify and prepare deployment directory
+        run: |
+          echo "Verifying deployment directory..."
+          ssh -i ~/.ssh/deploy_key \
+            -o StrictHostKeyChecking=no \
+            -p ${{ secrets.SSH_PORT }} \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            'mkdir -p /home/u403607455/domains/inmodb.net/public_html/admin && chmod 755 /home/u403607455/domains/inmodb.net/public_html/admin && ls -la /home/u403607455/domains/inmodb.net/public_html/admin/'
+
       - name: Upload .env file to server
         run: |
           scp -i ~/.ssh/deploy_key \
             -o StrictHostKeyChecking=no \
             -P ${{ secrets.SSH_PORT }} \
             .env \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/public_html/admin/.env
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/u403607455/domains/inmodb.net/public_html/admin/.env
 
       - name: Upload and execute deployment script
         run: |
@@ -387,14 +396,14 @@ jobs:
             -o StrictHostKeyChecking=no \
             -P ${{ secrets.SSH_PORT }} \
             deploy.sh \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/tmp/deploy_$(date +%Y%m%d_%H%M%S).sh
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/u403607455/deploy_$(date +%Y%m%d_%H%M%S).sh
 
           # Execute script on server
           ssh -i ~/.ssh/deploy_key \
             -o StrictHostKeyChecking=no \
             -p ${{ secrets.SSH_PORT }} \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            'bash /tmp/deploy_*.sh && rm -f /tmp/deploy_*.sh'
+            'bash /home/u403607455/deploy_*.sh && rm -f /home/u403607455/deploy_*.sh'
 
       - name: Verify deployment
         run: |
@@ -403,7 +412,7 @@ jobs:
             -o StrictHostKeyChecking=no \
             -p ${{ secrets.SSH_PORT }} \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            'cd /public_html/admin && php artisan --version'
+            'cd /home/u403607455/domains/inmodb.net/public_html/admin && php artisan --version'
 
       - name: Cleanup
         if: always()
