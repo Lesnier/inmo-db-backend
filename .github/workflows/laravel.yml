@@ -104,7 +104,7 @@ jobs:
         run: |
           echo "Creating .env file for production..."
           echo "Working directory: $(pwd)"
-          cat > .env << 'EOF'
+          cat > .env << EOF
           APP_NAME="${{ secrets.PROD_APP_NAME }}"
           APP_ENV=production
           APP_KEY=${{ secrets.PROD_APP_KEY }}
@@ -160,7 +160,7 @@ jobs:
       - name: Create .env file for Develop
         if: steps.env-check.outputs.environment == 'develop'
         run: |
-          cat > .env << 'EOF'
+          cat > .env << EOF
           APP_NAME="${{ secrets.DEV_APP_NAME }}"
           APP_ENV=development
           APP_KEY=${{ secrets.DEV_APP_KEY }}
