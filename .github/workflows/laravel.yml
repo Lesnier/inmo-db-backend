@@ -346,7 +346,16 @@ jobs:
           echo "[8/10] Verifying storage symlink..."
           if [ ! -L public/storage ]; then
             echo "Creating storage symlink..."
-            php artisan storage:link
+            # Try artisan command first
+            if ! php artisan storage:link 2>/dev/null; then
+              echo "⚠ artisan storage:link failed (symlink() not available)"
+              echo "Creating symlink manually using ln command..."
+              # Remove existing directory/file if exists
+              rm -rf public/storage
+              # Create symlink manually
+              ln -s ../storage/app/public public/storage
+              echo "✓ Manual symlink created successfully"
+            fi
           else
             echo "Storage symlink already exists."
           fi
