@@ -124,6 +124,13 @@ jobs:
         run: |
           echo "Creating .env file for production..."
 
+          # Debug: Check if environment variables are set
+          echo "DEBUG: Checking environment variables..."
+          echo "PROD_APP_NAME length: ${#PROD_APP_NAME}"
+          echo "PROD_APP_KEY length: ${#PROD_APP_KEY}"
+          echo "PROD_DB_HOST length: ${#PROD_DB_HOST}"
+          echo "PROD_MAIL_HOST length: ${#PROD_MAIL_HOST}"
+
           # Create .env using environment variables
           echo "APP_NAME=\"${PROD_APP_NAME}\"" > .env
           echo "APP_ENV=production" >> .env
