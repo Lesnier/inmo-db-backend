@@ -89,9 +89,20 @@ jobs:
 
           echo "Environment set to: $(cat $GITHUB_OUTPUT | grep environment)"
 
+      - name: Test file creation (debug)
+        run: |
+          echo "Testing file creation..."
+          pwd
+          ls -la
+          echo "test content" > test.txt
+          cat test.txt
+          ls -la test.txt
+          echo "✓ Test file created successfully"
+
       - name: Create .env file for Production
         if: steps.env-check.outputs.environment == 'production'
         run: |
+          echo "Creating .env file for production..."
           cat > .env << 'EOF'
           APP_NAME="${{ secrets.PROD_APP_NAME }}"
           APP_ENV=production
@@ -141,6 +152,9 @@ jobs:
 
           echo "✓ .env file created"
           ls -lah .env
+          echo "File size: $(stat -f%z .env 2>/dev/null || stat -c%s .env) bytes"
+          echo "First 3 lines:"
+          head -3 .env
 
       - name: Create .env file for Develop
         if: steps.env-check.outputs.environment == 'develop'
