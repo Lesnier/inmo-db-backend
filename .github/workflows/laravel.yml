@@ -72,13 +72,22 @@ jobs:
       - name: Determine Environment
         id: env-check
         run: |
+          echo "Current ref: ${{ github.ref }}"
+          echo "Current ref_name: ${{ github.ref_name }}"
+
           if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
             echo "environment=production" >> $GITHUB_OUTPUT
-            echo "Deploying to PRODUCTION"
+            echo "✓ Deploying to PRODUCTION"
           elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
             echo "environment=develop" >> $GITHUB_OUTPUT
-            echo "Deploying to DEVELOP"
+            echo "✓ Deploying to DEVELOP"
+          else
+            echo "❌ ERROR: Unknown branch: ${{ github.ref }}"
+            echo "environment=unknown" >> $GITHUB_OUTPUT
+            exit 1
           fi
+
+          echo "Environment set to: $(cat $GITHUB_OUTPUT | grep environment)"
 
       - name: Create .env file for Production
         if: steps.env-check.outputs.environment == 'production'
