@@ -298,9 +298,9 @@ jobs:
             cp .env .env.backup.$(date +%Y%m%d_%H%M%S)
           fi
 
-          # Initialize Git repository if it doesn't exist
+          # Initialize Git repository if it doesn't exist here
           if [ ! -d .git ]; then
-            echo "[2/10] Initializing Git repository...."
+            echo "[2/10] Initializing Git repository..."
             git init
             git remote add origin https://github.com/${{ github.repository }}.git
             echo "✓ Git repository initialized"
@@ -310,7 +310,7 @@ jobs:
           git config --global --add safe.directory ${{ secrets.DEPLOY_PATH }}
 
           # Git operations
-          echo "[3/10] Fetching latest changes from Git...."
+          echo "[3/10] Fetching latest changes from Git..."
           git fetch origin ${{ github.ref_name }}
 
           echo "[4/10] Pulling latest code..."
