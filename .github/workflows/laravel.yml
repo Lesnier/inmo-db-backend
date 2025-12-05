@@ -113,7 +113,7 @@ jobs:
           PROD_AWS_DEFAULT_REGION: ${{ secrets.PROD_AWS_DEFAULT_REGION }}
           PROD_AWS_BUCKET: ${{ secrets.PROD_AWS_BUCKET }}
         run: |
-          echo "Creating .env file for production..."
+          echo "Creating .env file for production...."
 
           # Create .env using environment variables
           echo "APP_NAME=\"${PROD_APP_NAME}\"" > .env
