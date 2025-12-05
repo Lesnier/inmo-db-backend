@@ -401,19 +401,26 @@ jobs:
 
       - name: Upload and execute deployment script
         run: |
-          # Upload script to server
+          # Upload script to server (always same name)
           scp -i ~/.ssh/deploy_key \
             -o StrictHostKeyChecking=no \
             -P ${{ secrets.SSH_PORT }} \
             deploy.sh \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/u403607455/deploy_$(date +%Y%m%d_%H%M%S).sh
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/u403607455/deploy_laravel.sh
 
           # Execute script on server
           ssh -i ~/.ssh/deploy_key \
             -o StrictHostKeyChecking=no \
             -p ${{ secrets.SSH_PORT }} \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            'bash /home/u403607455/deploy_*.sh && rm -f /home/u403607455/deploy_*.sh'
+            'bash /home/u403607455/deploy_laravel.sh'
+
+          # Clean up script after execution (even if deployment failed)
+          ssh -i ~/.ssh/deploy_key \
+            -o StrictHostKeyChecking=no \
+            -p ${{ secrets.SSH_PORT }} \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            'rm -f /home/u403607455/deploy_laravel.sh' || true
 
       - name: Verify deployment
         run: |
