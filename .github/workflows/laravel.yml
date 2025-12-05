@@ -262,6 +262,20 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
+          echo "✓ SSH key setup complete"
+          echo "Key fingerprint:"
+          ssh-keygen -l -f ~/.ssh/deploy_key || echo "Failed to read key fingerprint"
+
+      - name: Test SSH Connection
+        run: |
+          echo "Testing SSH connection..."
+          ssh -vvv -i ~/.ssh/deploy_key \
+            -o StrictHostKeyChecking=no \
+            -o BatchMode=yes \
+            -p ${{ secrets.SSH_PORT }} \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            'echo "✓ SSH connection successful!"' || echo "❌ SSH connection failed"
+
       - name: Create deployment script
         run: |
           cat > deploy.sh << 'DEPLOY_SCRIPT'

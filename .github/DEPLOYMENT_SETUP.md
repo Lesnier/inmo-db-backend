@@ -276,6 +276,25 @@ php artisan route:list
 ### Error: "Permission denied (publickey)"
 - Verifica que `SSH_PRIVATE_KEY` esté correctamente configurado en GitHub Secrets
 - Verifica que la clave pública esté en `~/.ssh/authorized_keys` del servidor
+- Verifica que los fingerprints coincidan:
+  ```bash
+  # En el servidor
+  ssh-keygen -l -f ~/.ssh/authorized_keys
+
+  # Debe coincidir con el fingerprint mostrado en el workflow
+  ```
+- Verifica permisos en el servidor:
+  ```bash
+  chmod 700 ~/.ssh
+  chmod 600 ~/.ssh/authorized_keys
+  ```
+- Asegúrate de que `SSH_PRIVATE_KEY` incluya TODO el contenido:
+  ```
+  -----BEGIN OPENSSH PRIVATE KEY-----
+  [contenido completo de la clave]
+  -----END OPENSSH PRIVATE KEY-----
+  ```
+  (Sin espacios al inicio/final, sin saltos de línea extra)
 
 ### Error: "composer: command not found"
 - Asegúrate de que Composer esté instalado en el servidor
