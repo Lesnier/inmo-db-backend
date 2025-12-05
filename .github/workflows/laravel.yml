@@ -294,7 +294,7 @@ jobs:
 
           # Backup current .env if exists
           if [ -f .env ]; then
-            echo "[1/10] Backing up current .env file..."
+            echo "[1/10] Backing up current .env file...."
             cp .env .env.backup.$(date +%Y%m%d_%H%M%S)
           fi
 
