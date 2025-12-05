@@ -5,7 +5,7 @@
 
 ---
 
-## 🔐 SECRETS DE SSH (3 obligatorios)
+## 🔐 SECRETS DE SSH (4 obligatorios)
 
 ```
 SSH_HOST
@@ -13,6 +13,14 @@ SSH_HOST
   Ejemplo: ftp.tudominio.com
           185.123.45.67
   Dónde obtenerlo: Panel de control de tu webhosting (cPanel, Plesk, etc.)
+
+SSH_PORT
+  Descripción: Puerto SSH del servidor (si es diferente al 22 por defecto)
+  Ejemplo: 65002
+          2222
+          22 (puerto estándar)
+  Dónde obtenerlo: Panel de control de tu webhosting → SSH Access
+  IMPORTANTE: Muchos webhostings usan puertos no estándar por seguridad
 
 SSH_USER
   Descripción: Usuario SSH/FTP de tu webhosting
@@ -235,10 +243,11 @@ DEV_AWS_BUCKET
 
 ## 📋 RESUMEN - Secrets Mínimos Requeridos para Empezar
 
-### Para SOLO Production (18 secrets mínimos):
+### Para SOLO Production (19 secrets mínimos):
 
-**SSH (3):**
+**SSH (4):**
 - SSH_HOST
+- SSH_PORT
 - SSH_USER
 - SSH_PRIVATE_KEY
 
@@ -349,6 +358,7 @@ ssh -i github_deploy usuario@tu-servidor.com
 
 ```
 SSH_HOST=ftp.midominio.com
+SSH_PORT=65002
 SSH_USER=usuario_cpanel
 SSH_PRIVATE_KEY=-----BEGIN OPENSSH PRIVATE KEY-----
 (contenido de la clave)

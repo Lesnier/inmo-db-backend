@@ -36,10 +36,11 @@ Notify (Resultado del deployment)
 
 📋 **Ver lista completa y detallada en:** [SECRETS_COMPLETE_LIST.md](SECRETS_COMPLETE_LIST.md)
 
-Resumen de secrets mínimos necesarios (18 para production):
+Resumen de secrets mínimos necesarios (19 para production):
 
-### SSH (3 obligatorios)
+### SSH (4 obligatorios)
 - `SSH_HOST` - Host del servidor
+- `SSH_PORT` - Puerto SSH (ej: 65002, 22)
 - `SSH_USER` - Usuario SSH
 - `SSH_PRIVATE_KEY` - Clave privada SSH
 
