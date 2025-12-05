@@ -154,8 +154,13 @@ jobs:
           echo "✓ .env file created"
           ls -lah .env
           echo "File size: $(stat -f%z .env 2>/dev/null || stat -c%s .env) bytes"
-          echo "First 3 lines:"
-          head -3 .env
+          echo "First 10 lines:"
+          head -10 .env
+          echo ""
+          echo "Checking if secrets are populated:"
+          grep "APP_NAME=" .env || echo "APP_NAME not found"
+          grep "APP_KEY=" .env || echo "APP_KEY not found"
+          grep "DB_HOST=" .env || echo "DB_HOST not found"
 
       - name: Create .env file for Develop
         if: steps.env-check.outputs.environment == 'develop'
