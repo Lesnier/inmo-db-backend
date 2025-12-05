@@ -234,6 +234,7 @@ jobs:
           path: .env
           retention-days: 1
           if-no-files-found: error
+          include-hidden-files: true
 
     outputs:
       environment: ${{ steps.env-check.outputs.environment }}
