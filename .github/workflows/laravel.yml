@@ -25,7 +25,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: "8.2"
           extensions: mbstring, dom, fileinfo, mysql, gd, zip, bcmath
           coverage: none
 
@@ -223,7 +223,7 @@ jobs:
             echo "Content preview:"
             head -5 .env
           else
-            echo "❌ ERROR: .env file not found!"
+            echo "❌ ERROR: .env file not found!!"
             exit 1
           fi
 
