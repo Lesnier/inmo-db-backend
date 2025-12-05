@@ -103,6 +103,7 @@ jobs:
         if: steps.env-check.outputs.environment == 'production'
         run: |
           echo "Creating .env file for production..."
+          echo "Working directory: $(pwd)"
           cat > .env << 'EOF'
           APP_NAME="${{ secrets.PROD_APP_NAME }}"
           APP_ENV=production
@@ -209,12 +210,30 @@ jobs:
           echo "✓ .env file created"
           ls -lah .env
 
+      - name: Verify .env before upload
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Listing files:"
+          ls -lah
+          echo "Checking .env file:"
+          if [ -f .env ]; then
+            echo "✓ .env exists"
+            ls -lah .env
+            echo "Content preview:"
+            head -5 .env
+          else
+            echo "❌ ERROR: .env file not found!"
+            exit 1
+          fi
+
       - name: Upload .env as artifact
         uses: actions/upload-artifact@v4
         with:
           name: env-file
           path: .env
           retention-days: 1
+          if-no-files-found: error
 
     outputs:
       environment: ${{ steps.env-check.outputs.environment }}
