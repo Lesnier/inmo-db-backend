@@ -99,45 +99,48 @@ jobs:
           ls -la test.txt
           echo "✓ Test file created successfully"
 
-      - name: Debug - Check if secrets are available
-        if: steps.env-check.outputs.environment == 'production'
-        run: |
-          echo "Checking if secrets are available..."
-          echo "PROD_APP_NAME length: ${#{{ secrets.PROD_APP_NAME }}}"
-          echo "PROD_APP_KEY length: ${{ secrets.PROD_APP_KEY != '' && 'HAS_VALUE' || 'EMPTY' }}"
-          echo "PROD_DB_HOST length: ${{ secrets.PROD_DB_HOST != '' && 'HAS_VALUE' || 'EMPTY' }}"
-          echo "PROD_DB_DATABASE length: ${{ secrets.PROD_DB_DATABASE != '' && 'HAS_VALUE' || 'EMPTY' }}"
-
-          # Create debug file with actual values
-          echo "APP_NAME=${{ secrets.PROD_APP_NAME }}" > debug_secrets.txt
-          echo "APP_KEY_FIRST_10=${{ secrets.PROD_APP_KEY }}" | cut -c1-50 >> debug_secrets.txt
-          echo "DB_HOST=${{ secrets.PROD_DB_HOST }}" >> debug_secrets.txt
-          echo "DB_DATABASE=${{ secrets.PROD_DB_DATABASE }}" >> debug_secrets.txt
-          cat debug_secrets.txt
-
       - name: Create .env file for Production
         if: steps.env-check.outputs.environment == 'production'
+        env:
+          PROD_APP_NAME: ${{ secrets.PROD_APP_NAME }}
+          PROD_APP_KEY: ${{ secrets.PROD_APP_KEY }}
+          PROD_APP_URL: ${{ secrets.PROD_APP_URL }}
+          PROD_DB_HOST: ${{ secrets.PROD_DB_HOST }}
+          PROD_DB_PORT: ${{ secrets.PROD_DB_PORT }}
+          PROD_DB_DATABASE: ${{ secrets.PROD_DB_DATABASE }}
+          PROD_DB_USERNAME: ${{ secrets.PROD_DB_USERNAME }}
+          PROD_DB_PASSWORD: ${{ secrets.PROD_DB_PASSWORD }}
+          PROD_MAIL_MAILER: ${{ secrets.PROD_MAIL_MAILER }}
+          PROD_MAIL_HOST: ${{ secrets.PROD_MAIL_HOST }}
+          PROD_MAIL_PORT: ${{ secrets.PROD_MAIL_PORT }}
+          PROD_MAIL_USERNAME: ${{ secrets.PROD_MAIL_USERNAME }}
+          PROD_MAIL_PASSWORD: ${{ secrets.PROD_MAIL_PASSWORD }}
+          PROD_MAIL_ENCRYPTION: ${{ secrets.PROD_MAIL_ENCRYPTION }}
+          PROD_MAIL_FROM_ADDRESS: ${{ secrets.PROD_MAIL_FROM_ADDRESS }}
+          PROD_AWS_ACCESS_KEY_ID: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
+          PROD_AWS_SECRET_ACCESS_KEY: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
+          PROD_AWS_DEFAULT_REGION: ${{ secrets.PROD_AWS_DEFAULT_REGION }}
+          PROD_AWS_BUCKET: ${{ secrets.PROD_AWS_BUCKET }}
         run: |
           echo "Creating .env file for production..."
-          echo "Working directory: $(pwd)"
 
-          # Create .env file using echo commands (more reliable than HEREDOC)
-          echo "APP_NAME=\"${{ secrets.PROD_APP_NAME }}\"" > .env
+          # Create .env using environment variables
+          echo "APP_NAME=\"${PROD_APP_NAME}\"" > .env
           echo "APP_ENV=production" >> .env
-          echo "APP_KEY=${{ secrets.PROD_APP_KEY }}" >> .env
+          echo "APP_KEY=${PROD_APP_KEY}" >> .env
           echo "APP_DEBUG=false" >> .env
-          echo "APP_URL=${{ secrets.PROD_APP_URL }}" >> .env
+          echo "APP_URL=${PROD_APP_URL}" >> .env
           echo "" >> .env
           echo "LOG_CHANNEL=stack" >> .env
           echo "LOG_DEPRECATIONS_CHANNEL=null" >> .env
           echo "LOG_LEVEL=error" >> .env
           echo "" >> .env
           echo "DB_CONNECTION=mysql" >> .env
-          echo "DB_HOST=${{ secrets.PROD_DB_HOST }}" >> .env
-          echo "DB_PORT=${{ secrets.PROD_DB_PORT }}" >> .env
-          echo "DB_DATABASE=${{ secrets.PROD_DB_DATABASE }}" >> .env
-          echo "DB_USERNAME=${{ secrets.PROD_DB_USERNAME }}" >> .env
-          echo "DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}" >> .env
+          echo "DB_HOST=${PROD_DB_HOST}" >> .env
+          echo "DB_PORT=${PROD_DB_PORT}" >> .env
+          echo "DB_DATABASE=${PROD_DB_DATABASE}" >> .env
+          echo "DB_USERNAME=${PROD_DB_USERNAME}" >> .env
+          echo "DB_PASSWORD=${PROD_DB_PASSWORD}" >> .env
           echo "" >> .env
           echo "BROADCAST_DRIVER=log" >> .env
           echo "CACHE_DRIVER=file" >> .env
@@ -152,19 +155,19 @@ jobs:
           echo "REDIS_PASSWORD=null" >> .env
           echo "REDIS_PORT=6379" >> .env
           echo "" >> .env
-          echo "MAIL_MAILER=${{ secrets.PROD_MAIL_MAILER }}" >> .env
-          echo "MAIL_HOST=${{ secrets.PROD_MAIL_HOST }}" >> .env
-          echo "MAIL_PORT=${{ secrets.PROD_MAIL_PORT }}" >> .env
-          echo "MAIL_USERNAME=${{ secrets.PROD_MAIL_USERNAME }}" >> .env
-          echo "MAIL_PASSWORD=${{ secrets.PROD_MAIL_PASSWORD }}" >> .env
-          echo "MAIL_ENCRYPTION=${{ secrets.PROD_MAIL_ENCRYPTION }}" >> .env
-          echo "MAIL_FROM_ADDRESS=${{ secrets.PROD_MAIL_FROM_ADDRESS }}" >> .env
-          echo "MAIL_FROM_NAME=\"${{ secrets.PROD_APP_NAME }}\"" >> .env
+          echo "MAIL_MAILER=${PROD_MAIL_MAILER}" >> .env
+          echo "MAIL_HOST=${PROD_MAIL_HOST}" >> .env
+          echo "MAIL_PORT=${PROD_MAIL_PORT}" >> .env
+          echo "MAIL_USERNAME=${PROD_MAIL_USERNAME}" >> .env
+          echo "MAIL_PASSWORD=${PROD_MAIL_PASSWORD}" >> .env
+          echo "MAIL_ENCRYPTION=${PROD_MAIL_ENCRYPTION}" >> .env
+          echo "MAIL_FROM_ADDRESS=${PROD_MAIL_FROM_ADDRESS}" >> .env
+          echo "MAIL_FROM_NAME=\"${PROD_APP_NAME}\"" >> .env
           echo "" >> .env
-          echo "AWS_ACCESS_KEY_ID=${{ secrets.PROD_AWS_ACCESS_KEY_ID }}" >> .env
-          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}" >> .env
-          echo "AWS_DEFAULT_REGION=${{ secrets.PROD_AWS_DEFAULT_REGION }}" >> .env
-          echo "AWS_BUCKET=${{ secrets.PROD_AWS_BUCKET }}" >> .env
+          echo "AWS_ACCESS_KEY_ID=${PROD_AWS_ACCESS_KEY_ID}" >> .env
+          echo "AWS_SECRET_ACCESS_KEY=${PROD_AWS_SECRET_ACCESS_KEY}" >> .env
+          echo "AWS_DEFAULT_REGION=${PROD_AWS_DEFAULT_REGION}" >> .env
+          echo "AWS_BUCKET=${PROD_AWS_BUCKET}" >> .env
           echo "AWS_USE_PATH_STYLE_ENDPOINT=false" >> .env
 
           echo "✓ .env file created"
@@ -180,26 +183,46 @@ jobs:
 
       - name: Create .env file for Develop
         if: steps.env-check.outputs.environment == 'develop'
+        env:
+          DEV_APP_NAME: ${{ secrets.DEV_APP_NAME }}
+          DEV_APP_KEY: ${{ secrets.DEV_APP_KEY }}
+          DEV_APP_URL: ${{ secrets.DEV_APP_URL }}
+          DEV_DB_HOST: ${{ secrets.DEV_DB_HOST }}
+          DEV_DB_PORT: ${{ secrets.DEV_DB_PORT }}
+          DEV_DB_DATABASE: ${{ secrets.DEV_DB_DATABASE }}
+          DEV_DB_USERNAME: ${{ secrets.DEV_DB_USERNAME }}
+          DEV_DB_PASSWORD: ${{ secrets.DEV_DB_PASSWORD }}
+          DEV_MAIL_MAILER: ${{ secrets.DEV_MAIL_MAILER }}
+          DEV_MAIL_HOST: ${{ secrets.DEV_MAIL_HOST }}
+          DEV_MAIL_PORT: ${{ secrets.DEV_MAIL_PORT }}
+          DEV_MAIL_USERNAME: ${{ secrets.DEV_MAIL_USERNAME }}
+          DEV_MAIL_PASSWORD: ${{ secrets.DEV_MAIL_PASSWORD }}
+          DEV_MAIL_ENCRYPTION: ${{ secrets.DEV_MAIL_ENCRYPTION }}
+          DEV_MAIL_FROM_ADDRESS: ${{ secrets.DEV_MAIL_FROM_ADDRESS }}
+          DEV_AWS_ACCESS_KEY_ID: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
+          DEV_AWS_SECRET_ACCESS_KEY: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
+          DEV_AWS_DEFAULT_REGION: ${{ secrets.DEV_AWS_DEFAULT_REGION }}
+          DEV_AWS_BUCKET: ${{ secrets.DEV_AWS_BUCKET }}
         run: |
           echo "Creating .env file for development..."
 
-          # Create .env file using echo commands (more reliable than HEREDOC)
-          echo "APP_NAME=\"${{ secrets.DEV_APP_NAME }}\"" > .env
+          # Create .env using environment variables
+          echo "APP_NAME=\"${DEV_APP_NAME}\"" > .env
           echo "APP_ENV=development" >> .env
-          echo "APP_KEY=${{ secrets.DEV_APP_KEY }}" >> .env
+          echo "APP_KEY=${DEV_APP_KEY}" >> .env
           echo "APP_DEBUG=true" >> .env
-          echo "APP_URL=${{ secrets.DEV_APP_URL }}" >> .env
+          echo "APP_URL=${DEV_APP_URL}" >> .env
           echo "" >> .env
           echo "LOG_CHANNEL=stack" >> .env
           echo "LOG_DEPRECATIONS_CHANNEL=null" >> .env
           echo "LOG_LEVEL=debug" >> .env
           echo "" >> .env
           echo "DB_CONNECTION=mysql" >> .env
-          echo "DB_HOST=${{ secrets.DEV_DB_HOST }}" >> .env
-          echo "DB_PORT=${{ secrets.DEV_DB_PORT }}" >> .env
-          echo "DB_DATABASE=${{ secrets.DEV_DB_DATABASE }}" >> .env
-          echo "DB_USERNAME=${{ secrets.DEV_DB_USERNAME }}" >> .env
-          echo "DB_PASSWORD=${{ secrets.DEV_DB_PASSWORD }}" >> .env
+          echo "DB_HOST=${DEV_DB_HOST}" >> .env
+          echo "DB_PORT=${DEV_DB_PORT}" >> .env
+          echo "DB_DATABASE=${DEV_DB_DATABASE}" >> .env
+          echo "DB_USERNAME=${DEV_DB_USERNAME}" >> .env
+          echo "DB_PASSWORD=${DEV_DB_PASSWORD}" >> .env
           echo "" >> .env
           echo "BROADCAST_DRIVER=log" >> .env
           echo "CACHE_DRIVER=file" >> .env
@@ -214,19 +237,19 @@ jobs:
           echo "REDIS_PASSWORD=null" >> .env
           echo "REDIS_PORT=6379" >> .env
           echo "" >> .env
-          echo "MAIL_MAILER=${{ secrets.DEV_MAIL_MAILER }}" >> .env
-          echo "MAIL_HOST=${{ secrets.DEV_MAIL_HOST }}" >> .env
-          echo "MAIL_PORT=${{ secrets.DEV_MAIL_PORT }}" >> .env
-          echo "MAIL_USERNAME=${{ secrets.DEV_MAIL_USERNAME }}" >> .env
-          echo "MAIL_PASSWORD=${{ secrets.DEV_MAIL_PASSWORD }}" >> .env
-          echo "MAIL_ENCRYPTION=${{ secrets.DEV_MAIL_ENCRYPTION }}" >> .env
-          echo "MAIL_FROM_ADDRESS=${{ secrets.DEV_MAIL_FROM_ADDRESS }}" >> .env
-          echo "MAIL_FROM_NAME=\"${{ secrets.DEV_APP_NAME }}\"" >> .env
+          echo "MAIL_MAILER=${DEV_MAIL_MAILER}" >> .env
+          echo "MAIL_HOST=${DEV_MAIL_HOST}" >> .env
+          echo "MAIL_PORT=${DEV_MAIL_PORT}" >> .env
+          echo "MAIL_USERNAME=${DEV_MAIL_USERNAME}" >> .env
+          echo "MAIL_PASSWORD=${DEV_MAIL_PASSWORD}" >> .env
+          echo "MAIL_ENCRYPTION=${DEV_MAIL_ENCRYPTION}" >> .env
+          echo "MAIL_FROM_ADDRESS=${DEV_MAIL_FROM_ADDRESS}" >> .env
+          echo "MAIL_FROM_NAME=\"${DEV_APP_NAME}\"" >> .env
           echo "" >> .env
-          echo "AWS_ACCESS_KEY_ID=${{ secrets.DEV_AWS_ACCESS_KEY_ID }}" >> .env
-          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}" >> .env
-          echo "AWS_DEFAULT_REGION=${{ secrets.DEV_AWS_DEFAULT_REGION }}" >> .env
-          echo "AWS_BUCKET=${{ secrets.DEV_AWS_BUCKET }}" >> .env
+          echo "AWS_ACCESS_KEY_ID=${DEV_AWS_ACCESS_KEY_ID}" >> .env
+          echo "AWS_SECRET_ACCESS_KEY=${DEV_AWS_SECRET_ACCESS_KEY}" >> .env
+          echo "AWS_DEFAULT_REGION=${DEV_AWS_DEFAULT_REGION}" >> .env
+          echo "AWS_BUCKET=${DEV_AWS_BUCKET}" >> .env
           echo "AWS_USE_PATH_STYLE_ENDPOINT=false" >> .env
 
           echo "✓ .env file created"
