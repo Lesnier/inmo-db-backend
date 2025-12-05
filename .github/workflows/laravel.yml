@@ -83,102 +83,98 @@ jobs:
       - name: Create .env file for Production
         if: steps.env-check.outputs.environment == 'production'
         run: |
-          cat > .env << 'EOF'
-          APP_NAME="${{ secrets.PROD_APP_NAME }}"
-          APP_ENV=production
-          APP_KEY=${{ secrets.PROD_APP_KEY }}
-          APP_DEBUG=false
-          APP_URL=${{ secrets.PROD_APP_URL }}
-
-          LOG_CHANNEL=stack
-          LOG_DEPRECATIONS_CHANNEL=null
-          LOG_LEVEL=error
-
-          DB_CONNECTION=mysql
-          DB_HOST=${{ secrets.PROD_DB_HOST }}
-          DB_PORT=${{ secrets.PROD_DB_PORT }}
-          DB_DATABASE=${{ secrets.PROD_DB_DATABASE }}
-          DB_USERNAME=${{ secrets.PROD_DB_USERNAME }}
-          DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
-
-          BROADCAST_DRIVER=log
-          CACHE_DRIVER=file
-          FILESYSTEM_DISK=public
-          QUEUE_CONNECTION=sync
-          SESSION_DRIVER=file
-          SESSION_LIFETIME=120
-
-          MEMCACHED_HOST=127.0.0.1
-
-          REDIS_HOST=127.0.0.1
-          REDIS_PASSWORD=null
-          REDIS_PORT=6379
-
-          MAIL_MAILER=${{ secrets.PROD_MAIL_MAILER }}
-          MAIL_HOST=${{ secrets.PROD_MAIL_HOST }}
-          MAIL_PORT=${{ secrets.PROD_MAIL_PORT }}
-          MAIL_USERNAME=${{ secrets.PROD_MAIL_USERNAME }}
-          MAIL_PASSWORD=${{ secrets.PROD_MAIL_PASSWORD }}
-          MAIL_ENCRYPTION=${{ secrets.PROD_MAIL_ENCRYPTION }}
-          MAIL_FROM_ADDRESS="${{ secrets.PROD_MAIL_FROM_ADDRESS }}"
-          MAIL_FROM_NAME="${{ secrets.PROD_APP_NAME }}"
-
-          AWS_ACCESS_KEY_ID=${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY=${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION=${{ secrets.PROD_AWS_DEFAULT_REGION }}
-          AWS_BUCKET=${{ secrets.PROD_AWS_BUCKET }}
-          AWS_USE_PATH_STYLE_ENDPOINT=false
-          EOF
+          echo "APP_NAME=${{ secrets.PROD_APP_NAME }}" > .env
+          echo "APP_ENV=production" >> .env
+          echo "APP_KEY=${{ secrets.PROD_APP_KEY }}" >> .env
+          echo "APP_DEBUG=false" >> .env
+          echo "APP_URL=${{ secrets.PROD_APP_URL }}" >> .env
+          echo "" >> .env
+          echo "LOG_CHANNEL=stack" >> .env
+          echo "LOG_DEPRECATIONS_CHANNEL=null" >> .env
+          echo "LOG_LEVEL=error" >> .env
+          echo "" >> .env
+          echo "DB_CONNECTION=mysql" >> .env
+          echo "DB_HOST=${{ secrets.PROD_DB_HOST }}" >> .env
+          echo "DB_PORT=${{ secrets.PROD_DB_PORT }}" >> .env
+          echo "DB_DATABASE=${{ secrets.PROD_DB_DATABASE }}" >> .env
+          echo "DB_USERNAME=${{ secrets.PROD_DB_USERNAME }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}" >> .env
+          echo "" >> .env
+          echo "BROADCAST_DRIVER=log" >> .env
+          echo "CACHE_DRIVER=file" >> .env
+          echo "FILESYSTEM_DISK=public" >> .env
+          echo "QUEUE_CONNECTION=sync" >> .env
+          echo "SESSION_DRIVER=file" >> .env
+          echo "SESSION_LIFETIME=120" >> .env
+          echo "" >> .env
+          echo "MEMCACHED_HOST=127.0.0.1" >> .env
+          echo "" >> .env
+          echo "REDIS_HOST=127.0.0.1" >> .env
+          echo "REDIS_PASSWORD=null" >> .env
+          echo "REDIS_PORT=6379" >> .env
+          echo "" >> .env
+          echo "MAIL_MAILER=${{ secrets.PROD_MAIL_MAILER }}" >> .env
+          echo "MAIL_HOST=${{ secrets.PROD_MAIL_HOST }}" >> .env
+          echo "MAIL_PORT=${{ secrets.PROD_MAIL_PORT }}" >> .env
+          echo "MAIL_USERNAME=${{ secrets.PROD_MAIL_USERNAME }}" >> .env
+          echo "MAIL_PASSWORD=${{ secrets.PROD_MAIL_PASSWORD }}" >> .env
+          echo "MAIL_ENCRYPTION=${{ secrets.PROD_MAIL_ENCRYPTION }}" >> .env
+          echo "MAIL_FROM_ADDRESS=${{ secrets.PROD_MAIL_FROM_ADDRESS }}" >> .env
+          echo "MAIL_FROM_NAME=${{ secrets.PROD_APP_NAME }}" >> .env
+          echo "" >> .env
+          echo "AWS_ACCESS_KEY_ID=${{ secrets.PROD_AWS_ACCESS_KEY_ID }}" >> .env
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}" >> .env
+          echo "AWS_DEFAULT_REGION=${{ secrets.PROD_AWS_DEFAULT_REGION }}" >> .env
+          echo "AWS_BUCKET=${{ secrets.PROD_AWS_BUCKET }}" >> .env
+          echo "AWS_USE_PATH_STYLE_ENDPOINT=false" >> .env
 
       - name: Create .env file for Develop
         if: steps.env-check.outputs.environment == 'develop'
         run: |
-          cat > .env << 'EOF'
-          APP_NAME="${{ secrets.DEV_APP_NAME }}"
-          APP_ENV=development
-          APP_KEY=${{ secrets.DEV_APP_KEY }}
-          APP_DEBUG=true
-          APP_URL=${{ secrets.DEV_APP_URL }}
-
-          LOG_CHANNEL=stack
-          LOG_DEPRECATIONS_CHANNEL=null
-          LOG_LEVEL=debug
-
-          DB_CONNECTION=mysql
-          DB_HOST=${{ secrets.DEV_DB_HOST }}
-          DB_PORT=${{ secrets.DEV_DB_PORT }}
-          DB_DATABASE=${{ secrets.DEV_DB_DATABASE }}
-          DB_USERNAME=${{ secrets.DEV_DB_USERNAME }}
-          DB_PASSWORD=${{ secrets.DEV_DB_PASSWORD }}
-
-          BROADCAST_DRIVER=log
-          CACHE_DRIVER=file
-          FILESYSTEM_DISK=public
-          QUEUE_CONNECTION=sync
-          SESSION_DRIVER=file
-          SESSION_LIFETIME=120
-
-          MEMCACHED_HOST=127.0.0.1
-
-          REDIS_HOST=127.0.0.1
-          REDIS_PASSWORD=null
-          REDIS_PORT=6379
-
-          MAIL_MAILER=${{ secrets.DEV_MAIL_MAILER }}
-          MAIL_HOST=${{ secrets.DEV_MAIL_HOST }}
-          MAIL_PORT=${{ secrets.DEV_MAIL_PORT }}
-          MAIL_USERNAME=${{ secrets.DEV_MAIL_USERNAME }}
-          MAIL_PASSWORD=${{ secrets.DEV_MAIL_PASSWORD }}
-          MAIL_ENCRYPTION=${{ secrets.DEV_MAIL_ENCRYPTION }}
-          MAIL_FROM_ADDRESS="${{ secrets.DEV_MAIL_FROM_ADDRESS }}"
-          MAIL_FROM_NAME="${{ secrets.DEV_APP_NAME }}"
-
-          AWS_ACCESS_KEY_ID=${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY=${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION=${{ secrets.DEV_AWS_DEFAULT_REGION }}
-          AWS_BUCKET=${{ secrets.DEV_AWS_BUCKET }}
-          AWS_USE_PATH_STYLE_ENDPOINT=false
-          EOF
+          echo "APP_NAME=${{ secrets.DEV_APP_NAME }}" > .env
+          echo "APP_ENV=development" >> .env
+          echo "APP_KEY=${{ secrets.DEV_APP_KEY }}" >> .env
+          echo "APP_DEBUG=true" >> .env
+          echo "APP_URL=${{ secrets.DEV_APP_URL }}" >> .env
+          echo "" >> .env
+          echo "LOG_CHANNEL=stack" >> .env
+          echo "LOG_DEPRECATIONS_CHANNEL=null" >> .env
+          echo "LOG_LEVEL=debug" >> .env
+          echo "" >> .env
+          echo "DB_CONNECTION=mysql" >> .env
+          echo "DB_HOST=${{ secrets.DEV_DB_HOST }}" >> .env
+          echo "DB_PORT=${{ secrets.DEV_DB_PORT }}" >> .env
+          echo "DB_DATABASE=${{ secrets.DEV_DB_DATABASE }}" >> .env
+          echo "DB_USERNAME=${{ secrets.DEV_DB_USERNAME }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DEV_DB_PASSWORD }}" >> .env
+          echo "" >> .env
+          echo "BROADCAST_DRIVER=log" >> .env
+          echo "CACHE_DRIVER=file" >> .env
+          echo "FILESYSTEM_DISK=public" >> .env
+          echo "QUEUE_CONNECTION=sync" >> .env
+          echo "SESSION_DRIVER=file" >> .env
+          echo "SESSION_LIFETIME=120" >> .env
+          echo "" >> .env
+          echo "MEMCACHED_HOST=127.0.0.1" >> .env
+          echo "" >> .env
+          echo "REDIS_HOST=127.0.0.1" >> .env
+          echo "REDIS_PASSWORD=null" >> .env
+          echo "REDIS_PORT=6379" >> .env
+          echo "" >> .env
+          echo "MAIL_MAILER=${{ secrets.DEV_MAIL_MAILER }}" >> .env
+          echo "MAIL_HOST=${{ secrets.DEV_MAIL_HOST }}" >> .env
+          echo "MAIL_PORT=${{ secrets.DEV_MAIL_PORT }}" >> .env
+          echo "MAIL_USERNAME=${{ secrets.DEV_MAIL_USERNAME }}" >> .env
+          echo "MAIL_PASSWORD=${{ secrets.DEV_MAIL_PASSWORD }}" >> .env
+          echo "MAIL_ENCRYPTION=${{ secrets.DEV_MAIL_ENCRYPTION }}" >> .env
+          echo "MAIL_FROM_ADDRESS=${{ secrets.DEV_MAIL_FROM_ADDRESS }}" >> .env
+          echo "MAIL_FROM_NAME=${{ secrets.DEV_APP_NAME }}" >> .env
+          echo "" >> .env
+          echo "AWS_ACCESS_KEY_ID=${{ secrets.DEV_AWS_ACCESS_KEY_ID }}" >> .env
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}" >> .env
+          echo "AWS_DEFAULT_REGION=${{ secrets.DEV_AWS_DEFAULT_REGION }}" >> .env
+          echo "AWS_BUCKET=${{ secrets.DEV_AWS_BUCKET }}" >> .env
+          echo "AWS_USE_PATH_STYLE_ENDPOINT=false" >> .env
 
       - name: Upload .env as artifact
         uses: actions/upload-artifact@v4
