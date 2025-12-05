@@ -17,29 +17,32 @@ Testing complete deployment flow with:
 
 This deployment uses the updated workflow with proper Git initialization code at lines 301-310.
 
-## 2025-12-05 - Fix Empty .env Variables
+## 2025-12-05 - Fix Empty .env Variables ✅ RESOLVED
 
 **Issue:** All .env variables were appearing as empty strings despite GitHub Secrets being populated.
 
-**Root Cause:** GitHub Actions expressions `${{ secrets.* }}` were not expanding properly when used directly in bash echo commands.
+**Root Cause:** The secrets were configured in GitHub **Environment** "production" (not as Repository Secrets), but the `prepare-env` job didn't have the `environment:` configuration, so it couldn't access them.
 
-**Solution:** Switched to using `env:` block pattern to expose secrets as environment variables:
+**Solution:** Added environment configuration to the `prepare-env` job:
 
 ```yaml
-- name: Create .env file for Production
-  env:
-    PROD_APP_NAME: ${{ secrets.PROD_APP_NAME }}
-    PROD_APP_KEY: ${{ secrets.PROD_APP_KEY }}
-    # ... all secrets
-  run: |
-    echo "APP_NAME=\"${PROD_APP_NAME}\"" > .env
-    echo "APP_KEY=${PROD_APP_KEY}" >> .env
+prepare-env:
+  name: Prepare Environment Configuration
+  runs-on: ubuntu-latest
+  needs: build-and-test
+  if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
+  environment: ${{ github.ref == 'refs/heads/master' && 'production' || 'develop' }}  # ← THIS LINE WAS MISSING
 ```
 
-This is the correct GitHub Actions pattern - secrets are exposed as environment variables via `env:` block, then accessed in bash as `${VARIABLE_NAME}`.
+This ensures the job has access to the Environment secrets based on the branch being deployed.
+
+**Additional improvements:**
+- Used `env:` block pattern to expose secrets as environment variables (best practice)
+- Secrets accessed in bash as `${VARIABLE_NAME}` instead of `${{ secrets.* }}`
 
 **Changes Made:**
-- Updated "Create .env file for Production" step (lines 102-171)
-- Updated "Create .env file for Develop" step (lines 184-255)
+- Added `environment:` to `prepare-env` job (line 70)
+- Updated "Create .env file for Production" step to use env block (lines 103-193)
+- Updated "Create .env file for Develop" step to use env block (lines 194-267)
 
-**Testing:** Ready for deployment test with proper secret expansion.
+**Result:** ✅ Deployment successful with all .env variables populated correctly on the server.

@@ -90,16 +90,6 @@ jobs:
 
           echo "Environment set to: $(cat $GITHUB_OUTPUT | grep environment)"
 
-      - name: Test file creation (debug)
-        run: |
-          echo "Testing file creation..."
-          pwd
-          ls -la
-          echo "test content" > test.txt
-          cat test.txt
-          ls -la test.txt
-          echo "✓ Test file created successfully"
-
       - name: Create .env file for Production
         if: steps.env-check.outputs.environment == 'production'
         env:
@@ -124,15 +114,6 @@ jobs:
           PROD_AWS_BUCKET: ${{ secrets.PROD_AWS_BUCKET }}
         run: |
           echo "Creating .env file for production..."
-
-          # Debug: Check if environment variables are set
-          echo "DEBUG: Checking environment variables..."
-          echo "PROD_APP_NAME = '${PROD_APP_NAME}'"
-          echo "PROD_APP_NAME length: ${#PROD_APP_NAME}"
-          echo "PROD_APP_KEY length: ${#PROD_APP_KEY}"
-          echo "PROD_DB_HOST = '${PROD_DB_HOST}'"
-          echo "PROD_DB_HOST length: ${#PROD_DB_HOST}"
-          echo "PROD_MAIL_HOST length: ${#PROD_MAIL_HOST}"
 
           # Create .env using environment variables
           echo "APP_NAME=\"${PROD_APP_NAME}\"" > .env
@@ -180,16 +161,8 @@ jobs:
           echo "AWS_BUCKET=${PROD_AWS_BUCKET}" >> .env
           echo "AWS_USE_PATH_STYLE_ENDPOINT=false" >> .env
 
-          echo "✓ .env file created"
+          echo "✓ .env file created for production"
           ls -lah .env
-          echo "File size: $(stat -f%z .env 2>/dev/null || stat -c%s .env) bytes"
-          echo "First 10 lines:"
-          head -10 .env
-          echo ""
-          echo "Checking if secrets are populated:"
-          grep "APP_NAME=" .env || echo "APP_NAME not found"
-          grep "APP_KEY=" .env || echo "APP_KEY not found"
-          grep "DB_HOST=" .env || echo "DB_HOST not found"
 
       - name: Create .env file for Develop
         if: steps.env-check.outputs.environment == 'develop'
@@ -262,7 +235,7 @@ jobs:
           echo "AWS_BUCKET=${DEV_AWS_BUCKET}" >> .env
           echo "AWS_USE_PATH_STYLE_ENDPOINT=false" >> .env
 
-          echo "✓ .env file created"
+          echo "✓ .env file created for development"
           ls -lah .env
 
       - name: Verify .env before upload
