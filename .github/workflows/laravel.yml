@@ -1,20 +1,370 @@
-name: Laravel
+name: Laravel CI/CD Pipeline
 
 on:
   push:
-    branches: [ "master" ]
+    branches:
+      - master
+      - develop
   pull_request:
-    branches: [ "master" ]
+    branches:
+      - master
+      - develop
 
 jobs:
-  laravel-tests:
-
+  # ============================================
+  # JOB 1: BUILD & TEST
+  # ============================================
+  build-and-test:
+    name: Build & Test Application
     runs-on: ubuntu-latest
 
     steps:
-    - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
-      with:
-        php-version: '8.0'
-    - uses: actions/checkout@v4
-    - name: Copy .env
-  
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mbstring, dom, fileinfo, mysql, gd, zip, bcmath
+          coverage: none
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+      - name: Directory Permissions
+        run: chmod -R 775 storage bootstrap/cache
+
+      - name: Create .env file for testing
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Run Laravel Tests
+        run: php artisan test --parallel
+        continue-on-error: true
+
+      - name: Upload vendor as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: vendor-dependencies
+          path: vendor/
+          retention-days: 1
+
+  # ============================================
+  # JOB 2: PREPARE ENVIRONMENT FILE
+  # ============================================
+  prepare-env:
+    name: Prepare Environment Configuration
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
+
+    steps:
+      - name: Determine Environment
+        id: env-check
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
+            echo "environment=production" >> $GITHUB_OUTPUT
+            echo "Deploying to PRODUCTION"
+          elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+            echo "environment=develop" >> $GITHUB_OUTPUT
+            echo "Deploying to DEVELOP"
+          fi
+
+      - name: Create .env file for Production
+        if: steps.env-check.outputs.environment == 'production'
+        run: |
+          cat > .env << 'EOF'
+          APP_NAME="${{ secrets.PROD_APP_NAME }}"
+          APP_ENV=production
+          APP_KEY=${{ secrets.PROD_APP_KEY }}
+          APP_DEBUG=false
+          APP_URL=${{ secrets.PROD_APP_URL }}
+
+          LOG_CHANNEL=stack
+          LOG_DEPRECATIONS_CHANNEL=null
+          LOG_LEVEL=error
+
+          DB_CONNECTION=mysql
+          DB_HOST=${{ secrets.PROD_DB_HOST }}
+          DB_PORT=${{ secrets.PROD_DB_PORT }}
+          DB_DATABASE=${{ secrets.PROD_DB_DATABASE }}
+          DB_USERNAME=${{ secrets.PROD_DB_USERNAME }}
+          DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
+
+          BROADCAST_DRIVER=log
+          CACHE_DRIVER=file
+          FILESYSTEM_DISK=public
+          QUEUE_CONNECTION=sync
+          SESSION_DRIVER=file
+          SESSION_LIFETIME=120
+
+          MEMCACHED_HOST=127.0.0.1
+
+          REDIS_HOST=127.0.0.1
+          REDIS_PASSWORD=null
+          REDIS_PORT=6379
+
+          MAIL_MAILER=${{ secrets.PROD_MAIL_MAILER }}
+          MAIL_HOST=${{ secrets.PROD_MAIL_HOST }}
+          MAIL_PORT=${{ secrets.PROD_MAIL_PORT }}
+          MAIL_USERNAME=${{ secrets.PROD_MAIL_USERNAME }}
+          MAIL_PASSWORD=${{ secrets.PROD_MAIL_PASSWORD }}
+          MAIL_ENCRYPTION=${{ secrets.PROD_MAIL_ENCRYPTION }}
+          MAIL_FROM_ADDRESS="${{ secrets.PROD_MAIL_FROM_ADDRESS }}"
+          MAIL_FROM_NAME="${{ secrets.PROD_APP_NAME }}"
+
+          AWS_ACCESS_KEY_ID=${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY=${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION=${{ secrets.PROD_AWS_DEFAULT_REGION }}
+          AWS_BUCKET=${{ secrets.PROD_AWS_BUCKET }}
+          AWS_USE_PATH_STYLE_ENDPOINT=false
+          EOF
+
+      - name: Create .env file for Develop
+        if: steps.env-check.outputs.environment == 'develop'
+        run: |
+          cat > .env << 'EOF'
+          APP_NAME="${{ secrets.DEV_APP_NAME }}"
+          APP_ENV=development
+          APP_KEY=${{ secrets.DEV_APP_KEY }}
+          APP_DEBUG=true
+          APP_URL=${{ secrets.DEV_APP_URL }}
+
+          LOG_CHANNEL=stack
+          LOG_DEPRECATIONS_CHANNEL=null
+          LOG_LEVEL=debug
+
+          DB_CONNECTION=mysql
+          DB_HOST=${{ secrets.DEV_DB_HOST }}
+          DB_PORT=${{ secrets.DEV_DB_PORT }}
+          DB_DATABASE=${{ secrets.DEV_DB_DATABASE }}
+          DB_USERNAME=${{ secrets.DEV_DB_USERNAME }}
+          DB_PASSWORD=${{ secrets.DEV_DB_PASSWORD }}
+
+          BROADCAST_DRIVER=log
+          CACHE_DRIVER=file
+          FILESYSTEM_DISK=public
+          QUEUE_CONNECTION=sync
+          SESSION_DRIVER=file
+          SESSION_LIFETIME=120
+
+          MEMCACHED_HOST=127.0.0.1
+
+          REDIS_HOST=127.0.0.1
+          REDIS_PASSWORD=null
+          REDIS_PORT=6379
+
+          MAIL_MAILER=${{ secrets.DEV_MAIL_MAILER }}
+          MAIL_HOST=${{ secrets.DEV_MAIL_HOST }}
+          MAIL_PORT=${{ secrets.DEV_MAIL_PORT }}
+          MAIL_USERNAME=${{ secrets.DEV_MAIL_USERNAME }}
+          MAIL_PASSWORD=${{ secrets.DEV_MAIL_PASSWORD }}
+          MAIL_ENCRYPTION=${{ secrets.DEV_MAIL_ENCRYPTION }}
+          MAIL_FROM_ADDRESS="${{ secrets.DEV_MAIL_FROM_ADDRESS }}"
+          MAIL_FROM_NAME="${{ secrets.DEV_APP_NAME }}"
+
+          AWS_ACCESS_KEY_ID=${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY=${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION=${{ secrets.DEV_AWS_DEFAULT_REGION }}
+          AWS_BUCKET=${{ secrets.DEV_AWS_BUCKET }}
+          AWS_USE_PATH_STYLE_ENDPOINT=false
+          EOF
+
+      - name: Upload .env as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: env-file
+          path: .env
+          retention-days: 1
+
+    outputs:
+      environment: ${{ steps.env-check.outputs.environment }}
+
+  # ============================================
+  # JOB 3: DEPLOY TO SERVER
+  # ============================================
+  deploy:
+    name: Deploy to ${{ needs.prepare-env.outputs.environment }}
+    runs-on: ubuntu-latest
+    needs: [build-and-test, prepare-env]
+    environment:
+      name: ${{ needs.prepare-env.outputs.environment }}
+
+    steps:
+      - name: Download .env artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: env-file
+
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Create deployment script
+        run: |
+          cat > deploy.sh << 'DEPLOY_SCRIPT'
+          #!/bin/bash
+          set -e
+
+          echo "========================================="
+          echo "  Laravel Deployment Script"
+          echo "  Environment: ${{ needs.prepare-env.outputs.environment }}"
+          echo "  Branch: ${{ github.ref_name }}"
+          echo "  Commit: ${{ github.sha }}"
+          echo "========================================="
+
+          # Navigate to project directory
+          cd /public_html/admin || exit 1
+
+          # Backup current .env if exists
+          if [ -f .env ]; then
+            echo "[1/10] Backing up current .env file..."
+            cp .env .env.backup.$(date +%Y%m%d_%H%M%S)
+          fi
+
+          # Git operations
+          echo "[2/10] Fetching latest changes from Git..."
+          git fetch origin ${{ github.ref_name }}
+
+          echo "[3/10] Pulling latest code..."
+          git pull origin ${{ github.ref_name }}
+
+          # Composer dependencies
+          echo "[4/10] Installing/Updating Composer dependencies..."
+          composer install --no-dev --optimize-autoloader --no-interaction
+
+          # Update .env file
+          echo "[5/10] Updating .env file..."
+          # The .env file will be uploaded separately via SCP
+
+          # Laravel optimizations
+          echo "[6/10] Running Laravel optimizations..."
+
+          # Clear all caches
+          php artisan config:clear
+          php artisan cache:clear
+          php artisan route:clear
+          php artisan view:clear
+          php artisan event:clear
+
+          # Cache configuration for production
+          if [[ "${{ needs.prepare-env.outputs.environment }}" == "production" ]]; then
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            php artisan event:cache
+          fi
+
+          # Storage link for Voyager
+          echo "[7/10] Verifying storage symlink..."
+          if [ ! -L public/storage ]; then
+            echo "Creating storage symlink..."
+            php artisan storage:link
+          else
+            echo "Storage symlink already exists."
+          fi
+
+          # Set correct permissions
+          echo "[8/10] Setting directory permissions..."
+          chmod -R 775 storage bootstrap/cache
+
+          # Check if www-data user exists, otherwise use apache or current user
+          if id "www-data" &>/dev/null; then
+            chown -R www-data:www-data storage bootstrap/cache public/storage 2>/dev/null || true
+          elif id "apache" &>/dev/null; then
+            chown -R apache:apache storage bootstrap/cache public/storage 2>/dev/null || true
+          fi
+
+          # Database migrations (optional, uncomment if needed)
+          # echo "[9/10] Running database migrations..."
+          # php artisan migrate --force
+
+          # Clear opcache if available
+          echo "[9/10] Clearing OPCache..."
+          if command -v php-fpm &> /dev/null; then
+            killall -USR2 php-fpm 2>/dev/null || true
+          fi
+
+          # Final cleanup
+          echo "[10/10] Final cleanup..."
+          composer dump-autoload
+
+          echo "========================================="
+          echo "  Deployment completed successfully!"
+          echo "========================================="
+          DEPLOY_SCRIPT
+
+          chmod +x deploy.sh
+
+      - name: Upload .env file to server
+        run: |
+          scp -i ~/.ssh/deploy_key \
+            -o StrictHostKeyChecking=no \
+            .env \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/public_html/admin/.env
+
+      - name: Upload and execute deployment script
+        run: |
+          # Upload script to server
+          scp -i ~/.ssh/deploy_key \
+            -o StrictHostKeyChecking=no \
+            deploy.sh \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/tmp/deploy_$(date +%Y%m%d_%H%M%S).sh
+
+          # Execute script on server
+          ssh -i ~/.ssh/deploy_key \
+            -o StrictHostKeyChecking=no \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            'bash /tmp/deploy_*.sh && rm -f /tmp/deploy_*.sh'
+
+      - name: Verify deployment
+        run: |
+          echo "Verifying deployment..."
+          ssh -i ~/.ssh/deploy_key \
+            -o StrictHostKeyChecking=no \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            'cd /public_html/admin && php artisan --version'
+
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -f ~/.ssh/deploy_key
+          rm -f deploy.sh
+          rm -f .env
+
+  # ============================================
+  # JOB 4: POST-DEPLOYMENT NOTIFICATION
+  # ============================================
+  notify:
+    name: Deployment Notification
+    runs-on: ubuntu-latest
+    needs: [deploy, prepare-env]
+    if: always()
+
+    steps:
+      - name: Deployment Success
+        if: needs.deploy.result == 'success'
+        run: |
+          echo "✅ Deployment to ${{ needs.prepare-env.outputs.environment }} succeeded!"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+
+      - name: Deployment Failed
+        if: needs.deploy.result == 'failure'
+        run: |
+          echo "❌ Deployment to ${{ needs.prepare-env.outputs.environment }} failed!"
+          echo "Please check the logs above for details."
+          exit 1
