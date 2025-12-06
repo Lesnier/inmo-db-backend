@@ -19,8 +19,39 @@ if (!file_exists($envFile)) {
 
 echo "✓ Archivo .env encontrado\n\n";
 
+// Función para leer .env de Laravel
+function parseEnvFile($filePath) {
+    $env = [];
+    $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+    foreach ($lines as $line) {
+        // Saltar comentarios
+        if (strpos(trim($line), '#') === 0) {
+            continue;
+        }
+
+        // Buscar líneas con formato KEY=VALUE
+        if (strpos($line, '=') !== false) {
+            list($key, $value) = explode('=', $line, 2);
+            $key = trim($key);
+            $value = trim($value);
+
+            // Remover comillas si existen
+            if (preg_match('/^"(.*)"$/', $value, $matches)) {
+                $value = $matches[1];
+            } elseif (preg_match("/^'(.*)'$/", $value, $matches)) {
+                $value = $matches[1];
+            }
+
+            $env[$key] = $value;
+        }
+    }
+
+    return $env;
+}
+
 // Leer variables del .env
-$env = parse_ini_file($envFile);
+$env = parseEnvFile($envFile);
 
 $dbHost = $env['DB_HOST'] ?? 'NO CONFIGURADO';
 $dbPort = $env['DB_PORT'] ?? '3306';
