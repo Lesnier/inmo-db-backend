@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('property_media', function (Blueprint $table) {
+        Schema::create('inmo_media', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('property_id');
             $table->string('type', 30)->default('image');
@@ -17,7 +17,7 @@ return new class extends Migration
             $table->integer('position')->default(0);
             $table->timestamps();
 
-            $table->foreign('property_id')->references('id')->on('real_estate_properties')->onDelete('cascade');
+            $table->foreign('property_id')->references('id')->on('inmo_properties')->onDelete('cascade');
             $table->index('property_id');
             $table->index(['property_id', 'position']);
         });
@@ -25,6 +25,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('property_media');
+        Schema::dropIfExists('inmo_media');
     }
 };

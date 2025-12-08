@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\User;
+use App\Models\Agent;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use App\Http\Controllers\Controller;
 
@@ -29,17 +31,42 @@ class AuthController extends Controller
             ]);
         }
 
+        // Check if user is an agent and load agent data
+        $agent = Agent::where('user_id', $user->id)->first();
+
+        // If user has agent profile, validate it's approved
+        if ($agent) {
+            if ($agent->status !== 'approved') {
+                throw ValidationException::withMessages([
+                    'email' => ['Your agent account is pending approval.'],
+                ]);
+            }
+        }
+
         // Crear token Sanctum
         $token = $user->createToken('login')->plainTextToken;
 
+        $userData = [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role ?? 'user',
+        ];
+
+        // Add agent data if exists
+        if ($agent) {
+            $userData['agent'] = [
+                'id' => $agent->id,
+                'status' => $agent->status,
+                'onboarding_status' => $agent->onboarding_status,
+                'plan_id' => $agent->plan_id,
+                'data' => $agent->data,
+            ];
+        }
+
         return response()->json([
             'success' => true,
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'role' => $user->role ?? 'user',
-            ],
+            'user' => $userData,
             'token' => $token,
         ]);
     }
@@ -54,40 +81,79 @@ class AuthController extends Controller
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'role' => 'nullable|in:user,agent',
+            'agent_data' => 'nullable|array', // Optional agent data
         ]);
 
+        DB::beginTransaction();
 
-        $role = 0;
-        switch ( $validated['role'] ) {
-            case 'user':
-                $role = 2;
-                break;
-            case 'agent':
-                $role = 3;
-                break;
-            default:
-                $role = 2;
-        }
+        try {
+            $role = 0;
+            $isAgent = isset($validated['role']) && $validated['role'] === 'agent';
 
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'role_id' => $role,
-        ]);
+            switch ($validated['role'] ?? 'user') {
+                case 'user':
+                    $role = 2;
+                    break;
+                case 'agent':
+                    $role = 3; // Or use a specific agent role ID
+                    break;
+                default:
+                    $role = 2;
+            }
 
-        $token = $user->createToken('register')->plainTextToken;
+            $user = User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'role_id' => $role,
+            ]);
 
-        return response()->json([
-            'success' => true,
-            'user' => [
+            $agent = null;
+
+            // If registering as agent, create agent record
+            if ($isAgent) {
+                $agentData = $validated['agent_data'] ?? [];
+
+                $agent = Agent::create([
+                    'user_id' => $user->id,
+                    'status' => 'approved', // Auto-approve for now
+                    'onboarding_status' => 'incomplete',
+                    'plan_id' => null,
+                    'data' => $agentData,
+                ]);
+            }
+
+            DB::commit();
+
+            $token = $user->createToken('register')->plainTextToken;
+
+            $userData = [
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'role' => $user->role,
-            ],
-            'token' => $token,
-        ], 201);
+                'role' => $validated['role'] ?? 'user',
+            ];
+
+            // Add agent data if created
+            if ($agent) {
+                $userData['agent'] = [
+                    'id' => $agent->id,
+                    'status' => $agent->status,
+                    'onboarding_status' => $agent->onboarding_status,
+                    'plan_id' => $agent->plan_id,
+                    'data' => $agent->data,
+                ];
+            }
+
+            return response()->json([
+                'success' => true,
+                'user' => $userData,
+                'token' => $token,
+            ], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 
     /**

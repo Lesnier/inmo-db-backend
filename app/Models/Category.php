@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Category extends Model
 {
-    protected $table = 'real_estate_categories';
+    protected $table = 'inmo_categories';
 
     protected $fillable = [
         'name',

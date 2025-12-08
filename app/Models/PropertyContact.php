@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PropertyContact extends Model
 {
-    protected $table = 'property_contacts';
+    protected $table = 'inmo_contacts';
 
     protected $fillable = [
         'property_id',

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PropertyMedia extends Model
 {
-    protected $table = 'property_media';
+    protected $table = 'inmo_media';
 
     protected $fillable = [
         'property_id',

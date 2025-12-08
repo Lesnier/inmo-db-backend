@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Models\Property;
 use App\Models\PropertyContact;
 use Illuminate\Http\Request;
@@ -12,7 +13,7 @@ class PropertyController extends Controller
     // GET /api/real-estate (public)
     public function index(Request $request): JsonResponse
     {
-        $query = Property::published();
+        $query = Property::published()->with(['category', 'media', 'building']);
 
         // Filtros
         if ($request->has('q')) {
@@ -28,8 +29,34 @@ class PropertyController extends Controller
             $query->where('price', '<=', $request->max_price);
         }
 
+        if ($request->has('bedrooms')) {
+            $query->where('data->attributes->bedrooms', $request->bedrooms);
+        }
+
+        if ($request->has('bathrooms')) {
+            $query->where('data->attributes->bathrooms', $request->bathrooms);
+        }
+
+        if ($request->has('area_min')) {
+            $query->where('data->attributes->area', '>=', $request->area_min);
+        }
+
+        if ($request->has('area_max')) {
+            $query->where('data->attributes->area', '<=', $request->area_max);
+        }
+
         if ($request->has('category_id')) {
             $query->where('category_id', $request->category_id);
+        }
+
+        if ($request->has('categories')) {
+            $categories = is_array($request->categories) ? $request->categories : explode(',', $request->categories);
+            $query->whereIn('category_id', $categories);
+        }
+
+        // Filter by agent (for agent's own properties)
+        if ($request->has('agent_id')) {
+            $query->where('agent_id', $request->agent_id);
         }
 
         // Sorting
@@ -44,7 +71,44 @@ class PropertyController extends Controller
         $perPage = (int) $request->get('per_page', 10);
         $properties = $query->paginate($perPage);
 
+        // Transform data to match frontend interface
+        $properties->getCollection()->transform(function ($property) {
+            return $this->transformProperty($property);
+        });
+
         return response()->json($properties);
+    }
+
+    private function transformProperty(Property $property): array
+    {
+        $data = is_array($property->data) ? $property->data : (
+            $property->data instanceof \App\DTOs\PropertyData
+                ? $property->data->toArray()
+                : []
+        );
+
+        $coordinates = null;
+        if (isset($data['coordinates']) && is_array($data['coordinates'])) {
+            $coordinates = [
+                'lat' => (float) ($data['coordinates']['lat'] ?? 0),
+                'lng' => (float) ($data['coordinates']['lng'] ?? 0),
+            ];
+        }
+
+        return [
+            'id' => $property->id,
+            'title' => $data['address'] ?? $property->title,
+            'price' => (float) $property->price,
+            'address' => $data['address'] ?? $property->title,
+            'area' => $data['attributes']['area'] ?? null,
+            'bedrooms' => $data['attributes']['bedrooms'] ?? null,
+            'bathrooms' => $data['attributes']['bathrooms'] ?? null,
+            'parking' => $data['attributes']['parking'] ?? null,
+            'badges' => $data['badges'] ?? [],
+            'images' => $data['images'] ?? [],
+            'verified' => $data['verified'] ?? false,
+            'coordinates' => $coordinates,
+        ];
     }
 
     // GET /api/real-estate/{id} (public)

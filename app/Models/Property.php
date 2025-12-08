@@ -9,23 +9,37 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Property extends Model
 {
-    protected $table = 'real_estate_properties';
+    protected $table = 'inmo_properties';
 
     protected $fillable = [
         'agent_id',
         'category_id',
+        'building_id',
+        'operation_type',
+        'type_of_offer',
         'title',
         'slug',
         'price',
+        'currency',
         'status',
-        'data',
         'published_at',
+        'country',
+        'state',
+        'city',
+        'district',
+        'zip_code',
+        'street_address',
+        'lat',
+        'lng',
+        'data',
     ];
 
     protected $casts = [
         'data' => \App\Casts\PropertyDataCast::class,
         'published_at' => 'datetime',
         'price' => 'decimal:2',
+        'lat' => 'decimal:7',
+        'lng' => 'decimal:7',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -33,12 +47,17 @@ class Property extends Model
     // Relationships
     public function agent(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'agent_id');
+        return $this->belongsTo(Agent::class, 'agent_id');
     }
 
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class, 'category_id');
+    }
+
+    public function building(): BelongsTo
+    {
+        return $this->belongsTo(Building::class, 'building_id');
     }
 
     public function media(): HasMany
@@ -53,7 +72,7 @@ class Property extends Model
 
     public function favorites(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'property_favorites', 'property_id', 'user_id');
+        return $this->belongsToMany(User::class, 'inmo_favorites', 'property_id', 'user_id');
     }
 
     // Scopes

@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('property_favorites', function (Blueprint $table) {
+        Schema::create('inmo_favorites', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('property_id');
@@ -16,7 +16,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('property_id')->references('id')->on('real_estate_properties')->onDelete('cascade');
+            $table->foreign('property_id')->references('id')->on('inmo_properties')->onDelete('cascade');
             $table->unique(['user_id', 'property_id']);
             $table->index('user_id');
             $table->index('property_id');
@@ -25,6 +25,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('property_favorites');
+        Schema::dropIfExists('inmo_favorites');
     }
 };
