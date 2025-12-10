@@ -29,7 +29,7 @@ return new class extends Migration
             
             $table->string('location')->nullable();
             
-            $table->json('data')->default(DB::raw('(JSON_OBJECT())'));
+            $table->json('data')->default('{}');
             $table->timestamps();
 
             $table->index('scheduled_at');

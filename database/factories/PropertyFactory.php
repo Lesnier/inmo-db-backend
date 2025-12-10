@@ -68,7 +68,9 @@ class PropertyFactory extends Factory
             'lat' => $lat,
             'lng' => $lng,
             'data' => PropertyData::fromArray($data),
-        ];
+        ] + (DB::getDriverName() === 'sqlite' ? [] : [
+            'location' => DB::raw("ST_GeomFromText('POINT($lng $lat)')"),
+        ]);
     }
 
     public function configure()

@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('country')->nullable();
             $table->string('phone')->nullable();
             
-            $table->json('data')->default(DB::raw('(JSON_OBJECT())'));
+            $table->json('data')->default('{}');
             $table->timestamps();
 
             $table->index('name');

@@ -26,7 +26,7 @@ return new class extends Migration
             $table->unsignedBigInteger('created_by'); // User ID
             $table->foreign('created_by')->references('id')->on('users'); // No cascade to keep history? or cascade? usually keep history.
             
-            $table->json('data')->default(DB::raw('(JSON_OBJECT())'));
+            $table->json('data')->default('{}');
             $table->timestamps();
 
             $table->index('assigned_to');

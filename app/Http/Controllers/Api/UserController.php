@@ -23,7 +23,7 @@ class UserController extends Controller
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
-            'role' => $user->role ? $user->role->name : 'user',
+            'role' => $user->role,
             'avatar' => $user->avatar, // Assuming Voyager uses avatar
             'settings' => $user->settings,
         ]);
@@ -64,7 +64,7 @@ class UserController extends Controller
 
         return response()->json([
             'message' => 'Profile updated successfully',
-            'user' => $user
+            'user' => $user->load('role')
         ]);
     }
     

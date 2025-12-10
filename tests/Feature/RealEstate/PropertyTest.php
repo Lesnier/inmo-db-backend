@@ -35,8 +35,9 @@ class PropertyTest extends TestCase
 
     public function test_agent_can_create_property()
     {
+        $this->withoutExceptionHandling();
         $agent = User::factory()->create(); // Add role agent if needed using seeders
-        $category = Category::factory()->create();
+        $category = Category::create(['name' => 'Test Category', 'slug' => 'test-category', 'data' => []]);
 
         $payload = [
             'title' => 'New Luxury Villa',

@@ -9,6 +9,10 @@ return new class extends Migration {
 
     public function up()
     {
+        if (DB::getDriverName() === 'sqlite') {
+            return;
+        }
+
         /**
          * ============================================================
          * 1. FULLTEXT INDEXES (MariaDB compatible)

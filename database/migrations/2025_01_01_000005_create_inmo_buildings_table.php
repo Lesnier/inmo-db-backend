@@ -42,7 +42,7 @@ return new class extends Migration {
             $table->integer('floors')->nullable();
 
             // Flexible metadata
-            $table->json('data')->default(DB::raw('(JSON_OBJECT())'));
+            $table->json('data')->default('{}');
 
             $table->timestamps();
 

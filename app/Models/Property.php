@@ -119,6 +119,11 @@ class Property extends Model
         // SE: $neLng $swLat
         // Close: $swLng $swLat
         
+        if (\Illuminate\Support\Facades\DB::getDriverName() === 'sqlite') {
+            return $query->whereBetween('lat', [$swLat, $neLat])
+                         ->whereBetween('lng', [$swLng, $neLng]);
+        }
+
         $polygon = "POLYGON(($swLng $swLat, $swLng $neLat, $neLng $neLat, $neLng $swLat, $swLng $swLat))";
         
         // MBRContains(poly, point) -> efficient usage of SPATIAL index in MySQL

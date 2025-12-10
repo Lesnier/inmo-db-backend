@@ -9,6 +9,10 @@ class PropertyObserver
 {
     public function saving(Property $property): void
     {
+        if (empty($property->slug)) {
+            $property->slug = \Illuminate\Support\Str::slug($property->title) . '-' . time();
+        }
+
         if ($property->lat && $property->lng) {
              // Use DB::raw to set geometry
              // In Laravel for Point insertion we usually need DB::raw
@@ -24,7 +28,9 @@ class PropertyObserver
              // Let's rely on the Model to cast/set. If not using a package, we have to do it manually in Controller or here.
              
              // For this codebase, I see no spatial package. I will use DB::raw.
-             $property->location = \Illuminate\Support\Facades\DB::raw("ST_GeomFromText('POINT({$property->lng} {$property->lat})')");
+             if (\Illuminate\Support\Facades\DB::getDriverName() !== 'sqlite') {
+                 $property->location = \Illuminate\Support\Facades\DB::raw("ST_GeomFromText('POINT({$property->lng} {$property->lat})')");
+             }
         }
     }
 

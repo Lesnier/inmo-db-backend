@@ -52,12 +52,16 @@ return new class extends Migration
 
 
             // Datos adicionales (JSON)
-            $table->json('data')->default(DB::raw('(JSON_OBJECT())'));
+            $table->json('data')->default('{}');
 
             // Columnas VIRTUALES GENERADAS (para indexación eficiente)
-            // Se usa json_extract para mayor compatibilidad con MariaDB ver. antigua
-            $table->unsignedTinyInteger('bedrooms')->virtualAs("json_unquote(json_extract(data, '$.general.bedrooms'))")->nullable();
-            $table->unsignedTinyInteger('bathrooms')->virtualAs("json_unquote(json_extract(data, '$.general.bathrooms'))")->nullable();
+            if (DB::getDriverName() === 'sqlite') {
+                $table->unsignedTinyInteger('bedrooms')->virtualAs("json_extract(data, '$.general.bedrooms')")->nullable();
+                $table->unsignedTinyInteger('bathrooms')->virtualAs("json_extract(data, '$.general.bathrooms')")->nullable();
+            } else {
+                $table->unsignedTinyInteger('bedrooms')->virtualAs("json_unquote(json_extract(data, '$.general.bedrooms'))")->nullable();
+                $table->unsignedTinyInteger('bathrooms')->virtualAs("json_unquote(json_extract(data, '$.general.bathrooms'))")->nullable();
+            }
 
             $table->timestamps();
 

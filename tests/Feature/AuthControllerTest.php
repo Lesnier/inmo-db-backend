@@ -92,7 +92,7 @@ class AuthControllerTest extends TestCase
                          ->postJson('/api/auth/logout');
 
         $response->assertStatus(200);
-        $response->assertJson(['message' => 'Logged out']);
+        $response->assertJson(['message' => 'Logged out successfully']);
 
         // Assert token is deleted/revoked
         $this->assertCount(0, $user->tokens);

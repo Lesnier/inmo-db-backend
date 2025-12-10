@@ -27,7 +27,7 @@ return new class extends Migration
 
             $table->date('expected_close_date')->nullable();
             
-            $table->json('data')->default(DB::raw('(JSON_OBJECT())'));
+            $table->json('data')->default('{}');
             $table->timestamps();
 
             $table->index('pipeline_id');

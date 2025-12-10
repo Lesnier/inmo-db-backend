@@ -35,6 +35,7 @@ class ContactControllerTest extends TestCase
 
     public function test_can_create_contact()
     {
+        $this->withoutExceptionHandling();
         $user = User::factory()->create();
         $this->actingAs($user);
 
@@ -49,6 +50,6 @@ class ContactControllerTest extends TestCase
         $response = $this->postJson('/api/crm/contacts', $payload);
 
         $response->assertStatus(201);
-        $this->assertMatchesSchema($response->json(), TestSchemas::CONTACT);
+        $this->assertMatchesSchema($response->json('data'), TestSchemas::CONTACT);
     }
 }

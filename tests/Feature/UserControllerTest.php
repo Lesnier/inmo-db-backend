@@ -33,7 +33,7 @@ class UserControllerTest extends TestCase
             'id' => 'integer',
             'name' => 'string',
             'email' => 'string',
-            'role' => 'string',
+            'role' => TestSchemas::ROLE,
             'avatar?' => 'string',
             'settings' => 'array' // allowed to be empty
         ]);

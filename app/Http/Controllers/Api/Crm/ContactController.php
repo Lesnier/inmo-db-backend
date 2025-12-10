@@ -179,7 +179,9 @@ class ContactController extends Controller
             'owner_id' => $validated['owner_id'] ?? Auth::id(), // Default to me if not specified
         ]));
 
-        return response()->json($contact, 201);
+        $contact->refresh();
+
+        return response()->json(['data' => $contact], 201);
     }
     /**
      * @OA\Post(

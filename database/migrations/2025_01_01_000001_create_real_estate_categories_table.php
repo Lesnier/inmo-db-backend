@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('name', 120);
             $table->string('slug', 140)->nullable()->unique();
-            $table->json('data')->default(DB::raw('(JSON_OBJECT())'));
+            $table->json('data')->default('{}');
             $table->timestamps();
             $table->index('slug');
         });

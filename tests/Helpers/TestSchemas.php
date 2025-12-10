@@ -11,13 +11,18 @@ class TestSchemas
     ];
 
     // Auth & User
+    public const ROLE = [
+        'id' => 'integer',
+        'name' => 'string',
+        'display_name' => 'string',
+    ];
+
     public const USER = [
         'id' => 'integer',
         'name' => 'string',
         'email' => 'string',
-        'role_id' => 'integer',
-        // 'created_at' => 'datetime', // Merged in tests
-        // 'updated_at' => 'datetime',
+        'role' => self::ROLE,
+        // 'role_id' => 'integer', // Deprecated in JSON response if role object is present
     ];
 
     public const USER_ANALYTICS = [

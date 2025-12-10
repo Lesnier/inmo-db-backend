@@ -291,7 +291,7 @@ class PropertyController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
-            'category_id' => 'nullable|exists:real_estate_categories,id',
+            'category_id' => 'nullable|exists:inmo_categories,id',
             'description' => 'nullable|string',
             'address' => 'nullable|string',
             'lat' => 'nullable|numeric',

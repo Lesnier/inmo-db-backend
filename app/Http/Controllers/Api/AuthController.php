@@ -55,9 +55,7 @@ class AuthController extends Controller
         $user = User::where('email', $validated['email'])->first();
 
         if (!$user || !Hash::check($validated['password'], $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['Invalid credentials.'],
-            ]);
+            return response()->json(['message' => 'Invalid login details'], 401);
         }
 
         // Check if user is an agent and load agent data
@@ -79,7 +77,7 @@ class AuthController extends Controller
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
-            'role' => $user->role ?? 'user',
+            'role' => $user->role, // Returns Role object (lazy loaded if needed)
         ];
 
         // Add agent data if exists
@@ -186,7 +184,7 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'role' => $validated['role'] ?? 'user',
+                'role' => $user->load('role')->role, // Explicitly load relationship
             ];
 
             // Add agent data if created

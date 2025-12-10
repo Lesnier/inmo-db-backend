@@ -27,7 +27,7 @@ return new class extends Migration
             $table->unsignedBigInteger('owner_id')->nullable(); // User ID
             $table->foreign('owner_id')->references('id')->on('users')->onDelete('set null');
             
-            $table->json('data')->default(DB::raw('(JSON_OBJECT())'));
+            $table->json('data')->default('{}');
             $table->timestamps();
 
             $table->index('type');

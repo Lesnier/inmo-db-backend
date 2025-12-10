@@ -23,7 +23,7 @@ return new class extends Migration
 
             $table->string('status', 50)->default('completed'); // pending, completed
             
-            $table->json('data')->default(DB::raw('(JSON_OBJECT())'));
+            $table->json('data')->default('{}');
             $table->timestamps();
 
             $table->index('type');

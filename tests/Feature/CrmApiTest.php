@@ -46,9 +46,9 @@ class CrmApiTest extends TestCase
         $response = $this->actingAs($user)->postJson('/api/crm/contacts', $data);
 
         $response->assertStatus(201)
-                 ->assertJsonPath('first_name', 'John')
-                 ->assertJsonPath('lead_status', 'new')
-                 ->assertJsonPath('city', 'New York');
+                 ->assertJsonPath('data.first_name', 'John')
+                 ->assertJsonPath('data.lead_status', 'new')
+                 ->assertJsonPath('data.city', 'New York');
                  
         $this->assertDatabaseHas('inmo_contacts', ['email' => 'john.doe@example.com']);
     }

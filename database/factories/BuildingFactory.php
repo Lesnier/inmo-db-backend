@@ -32,12 +32,11 @@ class BuildingFactory extends Factory
             'zip_code' => $this->faker->postcode(),
             'lat' => $lat,
             'lng' => $lng,
-            // 'location' => DB::raw("ST_GeomFromText('POINT($lng $lat)')"), // Disabling for test stability
-            'location' => null,
-            'year_built' => $this->faker->year(),
             'floors' => $this->faker->numberBetween(5, 30),
             'data' => ['amenities' => ['Pool', 'Gym', 'Spa']],
-        ];
+        ] + (DB::getDriverName() === 'sqlite' ? [] : [
+            'location' => DB::raw("ST_GeomFromText('POINT($lng $lat)')"),
+        ]);
     }
 
     
