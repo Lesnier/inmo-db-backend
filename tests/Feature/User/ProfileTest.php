@@ -19,8 +19,8 @@ class ProfileTest extends TestCase
                          ->getJson('/api/user/profile');
 
         $response->assertStatus(200)
-                 ->assertJsonPath('data.id', $user->id)
-                 ->assertJsonPath('data.email', $user->email);
+                 ->assertJsonPath('id', $user->id)
+                 ->assertJsonPath('email', $user->email);
     }
 
     public function test_user_can_update_profile()
@@ -28,20 +28,19 @@ class ProfileTest extends TestCase
         $user = User::factory()->create();
 
         $payload = [
-            'first_name' => 'Updated Name',
-            'last_name' => 'Updated Last',
-            'phone' => '0999999999'
+            'name' => 'Updated Name',
+            // 'settings' => ['theme' => 'dark'] // Optional
         ];
 
         $response = $this->actingAs($user)
                          ->putJson('/api/user/profile', $payload);
-
+        
         $response->assertStatus(200)
-                 ->assertJsonPath('data.first_name', 'Updated Name');
+                 ->assertJsonPath('user.name', 'Updated Name');
 
         $this->assertDatabaseHas('users', [
             'id' => $user->id,
-            'first_name' => 'Updated Name'
+            'name' => 'Updated Name'
         ]);
     }
 

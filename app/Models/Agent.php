@@ -27,6 +27,7 @@ class Agent extends Model
     ];
 
     // Relationships
+    // Relationships
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -39,37 +40,44 @@ class Agent extends Model
 
     public function properties(): HasMany
     {
-        return $this->hasMany(Property::class, 'agent_id', 'user_id');
+        // Agent properties are typically those where they are the publisher (user_id)
+        return $this->hasMany(Property::class, 'publisher_id', 'user_id');
     }
 
-    public function clients(): HasMany
+    // CRM Integration
+    public function contacts(): HasMany
     {
-        return $this->hasMany(Client::class);
+        return $this->hasMany(Contact::class, 'owner_id', 'user_id');
     }
 
     public function leads(): HasMany
     {
-        return $this->hasMany(Lead::class);
+        return $this->contacts()->where('lifecycle_stage', 'lead');
+    }
+
+    public function clients(): HasMany
+    {
+        return $this->contacts()->whereIn('lifecycle_stage', ['customer', 'client']);
+    }
+
+    public function deals(): HasMany
+    {
+        return $this->hasMany(Deal::class, 'owner_id', 'user_id');
+    }
+
+    public function tickets(): HasMany
+    {
+        return $this->hasMany(Ticket::class, 'owner_id', 'user_id');
     }
 
     public function activities(): HasMany
     {
-        return $this->hasMany(Activity::class);
-    }
-
-    public function requirements(): HasMany
-    {
-        return $this->hasMany(Requirement::class);
-    }
-
-    public function proposals(): HasMany
-    {
-        return $this->hasMany(Proposal::class);
+        return $this->hasMany(Activity::class, 'created_by', 'user_id');
     }
 
     public function buildings(): HasMany
     {
-        return $this->hasMany(Building::class);
+        return $this->hasMany(Building::class, 'publisher_id', 'user_id');
     }
 
     // Scopes

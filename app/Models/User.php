@@ -10,6 +10,20 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+// Duplicate import removed
+
+/**
+ * @OA\Schema(
+ *     schema="User",
+ *     type="object",
+ *     @OA\Property(property="id", type="integer"),
+ *     @OA\Property(property="name", type="string"),
+ *     @OA\Property(property="email", type="string"),
+ *     @OA\Property(property="role_id", type="integer"),
+ *     @OA\Property(property="created_at", type="string", format="date-time"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time")
+ * )
+ */
 class User extends \TCG\Voyager\Models\User
 {
     use HasApiTokens, HasFactory, Notifiable;
@@ -86,12 +100,10 @@ class User extends \TCG\Voyager\Models\User
         return $this->hasMany(Meeting::class, 'host_id');
     }
 
-    // Legacy / Real Estate
     public function properties(): HasMany
     {
-        // Publisher check is usually done via publisher_id/publisher_type polymorphic, 
-        // but if we kept legacy logical or if properties just point to user_id:
-        return $this->hasMany(Property::class, 'publisher_id')->where('publisher_type', 'user');
+        // Get all properties published by this user, regardless of the role (publisher_type)
+        return $this->hasMany(Property::class, 'publisher_id');
     }
 
     public function favorite_properties(): BelongsToMany
@@ -102,5 +114,10 @@ class User extends \TCG\Voyager\Models\User
             'user_id',
             'property_id'
         );
+    }
+
+    public function agent(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Agent::class, 'user_id');
     }
 }

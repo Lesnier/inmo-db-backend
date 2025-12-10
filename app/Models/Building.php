@@ -13,6 +13,23 @@ class Building extends Model
 {
     use HasFactory, HasPublisher, \App\Traits\HasAssociations;
 
+    // Duplicate traits removed
+    
+    /**
+     * @OA\Schema(
+     *     schema="Building",
+     *     type="object",
+     *     @OA\Property(property="id", type="integer"),
+     *     @OA\Property(property="name", type="string"),
+     *     @OA\Property(property="address", type="string"),
+     *     @OA\Property(property="floors", type="integer"),
+     *     @OA\Property(property="year_built", type="integer"),
+     *     @OA\Property(property="lat", type="number", format="float"),
+     *     @OA\Property(property="lng", type="number", format="float"),
+     *     @OA\Property(property="created_at", type="string", format="date-time"),
+     *     @OA\Property(property="updated_at", type="string", format="date-time")
+     * )
+     */
     protected $table = 'inmo_buildings';
 
     protected $fillable = [
@@ -54,13 +71,6 @@ class Building extends Model
     {
         return $this->morphMany(Media::class, 'model');
     }
-    public function agent()
-    {
-        return $this->belongsTo(\App\Models\Agent::class);
-    }
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
+    // user() and agent() methods removed as columns don't exist. 
+    // Use publisher() relation and agent attribute.
 }

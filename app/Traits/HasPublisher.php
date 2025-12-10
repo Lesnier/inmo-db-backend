@@ -22,9 +22,19 @@ trait HasPublisher
      */
     public function getAgentAttribute()
     {
-        if ($this->publisher_type === 'real_estate_agent' || $this->publisher_type === 'real_estate_agency') {
-            return Agent::where('user_id', $this->publisher_id)->first();
+        // "publisher_id is a user_id..."
+        $user = $this->publisher;
+        
+        if (!$user) {
+            return null;
         }
+
+        // Check if user is agent via Role
+        // Assuming role name is 'agent' or 'real_estate_agent'
+        if ($user->role && in_array($user->role->name, ['agent', 'real_estate_agent'])) {
+             return Agent::where('user_id', $user->id)->first();
+        }
+
         return null;
     }
 

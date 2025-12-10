@@ -14,8 +14,7 @@ return new class extends Migration
         Schema::create('inmo_pipelines', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('entity_type', 50); // deal, ticket
-            $table->timestamps();
+            $table->enum('entity_type', ['deal', 'ticket'])->default('deal');           $table->timestamps();
 
             $table->index('entity_type');
         });

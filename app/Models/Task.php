@@ -11,7 +11,22 @@ class Task extends Model
     use HasFactory, HasAssociations;
 
     protected $table = 'inmo_tasks';
-
+    
+    /**
+     * @OA\Schema(
+     *     schema="Task",
+     *     type="object",
+     *     @OA\Property(property="id", type="integer"),
+     *     @OA\Property(property="title", type="string"),
+     *     @OA\Property(property="description", type="string"),
+     *     @OA\Property(property="due_date", type="string", format="date-time"),
+     *     @OA\Property(property="status", type="string"),
+     *     @OA\Property(property="priority", type="string"),
+     *     @OA\Property(property="assigned_to", type="integer"),
+     *     @OA\Property(property="created_at", type="string", format="date-time"),
+     *     @OA\Property(property="updated_at", type="string", format="date-time")
+     * )
+     */
     protected $fillable = [
         'title',
         'description',

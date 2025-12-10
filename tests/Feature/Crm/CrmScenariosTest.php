@@ -20,8 +20,8 @@ class CrmScenariosTest extends TestCase
     {
         $user = User::factory()->create();
         $pipeline = Pipeline::create(['name' => 'Sales', 'slug' => 'sales']);
-        $stage1 = PipelineStage::factory()->create(['pipeline_id' => $pipeline->id, 'order' => 1]);
-        $stage2 = PipelineStage::factory()->create(['pipeline_id' => $pipeline->id, 'order' => 2]);
+        $stage1 = PipelineStage::factory()->create(['pipeline_id' => $pipeline->id, 'position' => 1]);
+        $stage2 = PipelineStage::factory()->create(['pipeline_id' => $pipeline->id, 'position' => 2]);
 
         // 1. Create Deal
         $payload = [

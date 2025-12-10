@@ -20,7 +20,7 @@ class AgentFactory extends Factory
             'status' => $this->faker->randomElement(['active', 'pending', 'suspended']),
             'onboarding_status' => 'completed',
             'plan_id' => null,
-            'data' => [
+            'data' => \App\DTOs\AgentData::fromArray([
                 'company_name' => $this->faker->company(),
                 'license_number' => $this->faker->bothify('LIC-#####'),
                 'phone' => $this->faker->phoneNumber(),
@@ -28,7 +28,7 @@ class AgentFactory extends Factory
                 'bio' => $this->faker->paragraph(),
                 'specialties' => ['Residential', 'Luxury', 'Commercial'],
                 'languages' => ['Spanish', 'English'],
-            ],
+            ]),
         ];
     }
 }

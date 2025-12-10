@@ -129,6 +129,34 @@ class CrmExtendedSeeder extends Seeder
                     'type' => 'deal_customer'
                 ]);
             }
+
+            // Generate Stage History for the Deal
+            // Assume the deal is currently in its assigned stage.
+            // We'll create a history record for entering this stage.
+            \App\Models\DealStageHistory::create([
+                'deal_id' => $deal->id,
+                'stage_id' => $deal->stage_id,
+                'pipeline_id' => $deal->pipeline_id,
+                'entered_at' => now()->subDays(rand(1, 10)),
+                'exited_at' => null,
+            ]);
+            
+            // Optionally add a previous stage history
+            $previousStage = \App\Models\PipelineStage::where('pipeline_id', $deal->pipeline_id)
+                ->where('position', '<', $deal->stage ? $deal->stage->position : 999)
+                ->orderBy('position', 'desc')
+                ->first();
+
+            if ($previousStage) {
+                \App\Models\DealStageHistory::create([
+                    'deal_id' => $deal->id,
+                    'stage_id' => $previousStage->id,
+                    'pipeline_id' => $deal->pipeline_id,
+                    'entered_at' => now()->subDays(rand(15, 20)),
+                    'exited_at' => now()->subDays(rand(1, 10)),
+                    'duration_minutes' => rand(1000, 5000),
+                ]);
+            }
         }
 
         // Tickets

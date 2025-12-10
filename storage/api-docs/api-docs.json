@@ -15,7 +15,1140 @@
         }
     ],
     "paths": {
+        "/api/agent/profile": {
+            "get": {
+                "tags": [
+                    "Agents"
+                ],
+                "summary": "Get Agent Profile",
+                "operationId": "3914ea9c9f8129ec0a64ed1300f7b0c6",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "404": {
+                        "description": "Profile not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Agents"
+                ],
+                "summary": "Update Agent Profile",
+                "operationId": "0d599bae1214803f6338bd72cb0ebd35",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "pending",
+                                            "approved",
+                                            "suspended"
+                                        ]
+                                    },
+                                    "onboarding_status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "incomplete",
+                                            "complete"
+                                        ]
+                                    },
+                                    "data": {
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Profile updated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/agent/stats": {
+            "get": {
+                "tags": [
+                    "Agents"
+                ],
+                "summary": "Get Agent Statistics",
+                "operationId": "931afb2f3a066b083445faca714e7a07",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/login": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "User Login",
+                "operationId": "dd51a484b7fa0f97c7680fdbde14cf5f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "secret"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login Successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "token": {
+                                            "type": "string",
+                                            "example": "1|laravel_sanctum_token..."
+                                        },
+                                        "user": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/api/auth/register": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "User Registration",
+                "operationId": "c7bb21a0d87049e161b8e4c9b0d909f2",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "secret"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "secret"
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "enum": [
+                                            "user",
+                                            "agent"
+                                        ],
+                                        "example": "user"
+                                    },
+                                    "agent_data": {
+                                        "description": "Optional agent profile data",
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Registration Successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "token": {
+                                            "type": "string"
+                                        },
+                                        "user": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error"
+                    }
+                }
+            }
+        },
+        "/api/auth/logout": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "User Logout",
+                "operationId": "df9bdc6c7a6d9f20b983526b2ec0f698",
+                "responses": {
+                    "200": {
+                        "description": "Logged out"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/real-estate/buildings": {
+            "get": {
+                "tags": [
+                    "Real Estate Buildings"
+                ],
+                "summary": "List Buildings",
+                "operationId": "35a2245ce44999053dac83e152f7389d",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of buildings"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Real Estate Buildings"
+                ],
+                "summary": "Create Building",
+                "operationId": "877ceba8434509810baadcf253feb076",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "address": {
+                                        "type": "string"
+                                    },
+                                    "lat": {
+                                        "type": "number"
+                                    },
+                                    "lng": {
+                                        "type": "number"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/real-estate/buildings/{id}": {
+            "get": {
+                "tags": [
+                    "Real Estate Buildings"
+                ],
+                "summary": "Get Building Details",
+                "operationId": "c53810e4d490a70b9ad2612e7238080d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Building details"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Real Estate Buildings"
+                ],
+                "summary": "Update Building",
+                "operationId": "4c37c408697a22ad409fe08f95bc6656",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/real-estate/buildings/{building}/units": {
+            "get": {
+                "tags": [
+                    "Real Estate Buildings"
+                ],
+                "summary": "Get Building Units (Properties)",
+                "operationId": "98d094af6a135c9edaf5f0f6f60e1dc3",
+                "parameters": [
+                    {
+                        "name": "building",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of units"
+                    }
+                }
+            }
+        },
+        "/api/real-estate/buildings/{building}/analytics": {
+            "get": {
+                "tags": [
+                    "Real Estate Buildings"
+                ],
+                "summary": "Get Building Analytics",
+                "operationId": "8ed59f01d2efc7ddb5440f8a73ce14af",
+                "parameters": [
+                    {
+                        "name": "building",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Analytics data"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/chat/rooms": {
+            "get": {
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "List user's chat rooms",
+                "operationId": "a35416c6882c5dee885c38e0a99e3177",
+                "responses": {
+                    "200": {
+                        "description": "List of chats"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Create or get existing private chat",
+                "operationId": "9b851f3b83cc9d0ae3c399a2e382ead9",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "participant_id"
+                                ],
+                                "properties": {
+                                    "participant_id": {
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "subject": {
+                                        "type": "string",
+                                        "example": "Project A"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Chat created"
+                    }
+                }
+            }
+        },
+        "/api/chat/rooms/{id}/messages": {
+            "get": {
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Get messages for a room",
+                "operationId": "67024b4cb8b6be8536e12c6d8f360231",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of messages"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Send a message",
+                "operationId": "b3dc9d62febffa5542b5d2248774b2de",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "content"
+                                ],
+                                "properties": {
+                                    "content": {
+                                        "type": "string",
+                                        "example": "Hello world"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Message sent"
+                    }
+                }
+            }
+        },
+        "/api/crm/activities": {
+            "get": {
+                "tags": [
+                    "CRM Activities"
+                ],
+                "summary": "List activities",
+                "operationId": "c16710f66957167311a5f0ffdea1286b",
+                "responses": {
+                    "200": {
+                        "description": "List of activities",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 600
+                                                    },
+                                                    "type": {
+                                                        "type": "string",
+                                                        "example": "note"
+                                                    },
+                                                    "content": {
+                                                        "type": "string",
+                                                        "example": "Left a voicemail"
+                                                    },
+                                                    "scheduled_at": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "status": {
+                                                        "type": "string",
+                                                        "example": "completed"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "links": {
+                                            "type": "object"
+                                        },
+                                        "meta": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "CRM Activities"
+                ],
+                "summary": "Create activity",
+                "operationId": "85beab74ea034b5001af67bf234b78ca",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "type",
+                                    "content"
+                                ],
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "example": "call_log"
+                                    },
+                                    "content": {
+                                        "type": "string",
+                                        "example": "Called client, no answer"
+                                    },
+                                    "scheduled_at": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "associations": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/crm/activities/{id}": {
+            "get": {
+                "tags": [
+                    "CRM Activities"
+                ],
+                "summary": "Get activity details",
+                "operationId": "d4dd81634ec233111ecd3478a35ea9bd",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Activity details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 600
+                                                },
+                                                "attributes": {
+                                                    "$ref": "#/components/schemas/Activity"
+                                                },
+                                                "timeline": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "associations": {
+                                                    "properties": {
+                                                        "contacts": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "deals": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "tickets": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object"
+                                                            }
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "CRM Activities"
+                ],
+                "summary": "Update activity",
+                "operationId": "e553d3dd06eeef4e30f49faed5a85042",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "CRM Activities"
+                ],
+                "summary": "Delete activity",
+                "operationId": "161f3d3c1119d95192937157e3acaf5a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/crm/analytics/pipeline": {
+            "get": {
+                "tags": [
+                    "CRM - Analytics"
+                ],
+                "summary": "General Pipeline Metrics",
+                "description": "Returns general pipeline stats. Suggested Chart: Scorecard/Key Metrics.",
+                "operationId": "23e2e85b50326165ca1f4bf6d293e976",
+                "parameters": [
+                    {
+                        "name": "pipeline_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "agent_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Pipeline stats",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "pipeline_volume": {
+                                            "type": "integer",
+                                            "example": 15
+                                        },
+                                        "pipeline_value": {
+                                            "type": "number",
+                                            "example": 2500000
+                                        },
+                                        "avg_deal_size": {
+                                            "type": "number",
+                                            "example": 166666
+                                        },
+                                        "conversion_rate_percentage": {
+                                            "type": "number",
+                                            "example": 35.5
+                                        },
+                                        "sales_cycle_length_days": {
+                                            "type": "number",
+                                            "example": 45.2
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/crm/analytics/stages": {
+            "get": {
+                "tags": [
+                    "CRM - Analytics"
+                ],
+                "summary": "Stage-specific Metrics (Funnel)",
+                "description": "Returns stage distribution. Suggested Chart: Funnel Chart or Bar Chart.",
+                "operationId": "07920940ac19ea71f8ae11a0d7d032c6",
+                "parameters": [
+                    {
+                        "name": "pipeline_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "agent_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Stage distribution",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "funnel": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "stage_name": {
+                                                        "type": "string"
+                                                    },
+                                                    "deal_count": {
+                                                        "type": "integer"
+                                                    },
+                                                    "deal_value": {
+                                                        "type": "number"
+                                                    },
+                                                    "probability": {
+                                                        "type": "integer"
+                                                    },
+                                                    "avg_days_in_stage": {
+                                                        "description": "Avg time in stage calculated from history",
+                                                        "type": "number"
+                                                    },
+                                                    "chart_type_suggestion": {
+                                                        "type": "string",
+                                                        "example": "funnel"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "total_active_value": {
+                                            "type": "number"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/crm/analytics/forecast": {
+            "get": {
+                "tags": [
+                    "CRM - Analytics"
+                ],
+                "summary": "Revenue Forecast",
+                "description": "Returns revenue forecast based on deal probabilities. Suggested Chart: Gauge Chart or Progress Bar.",
+                "operationId": "1035907c396f58220505309ccc00a992",
+                "parameters": [
+                    {
+                        "name": "pipeline_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "agent_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Forecast data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "forecasted_revenue": {
+                                            "type": "number"
+                                        },
+                                        "total_pipeline_value": {
+                                            "type": "number"
+                                        },
+                                        "target_revenue": {
+                                            "type": "number"
+                                        },
+                                        "pipeline_coverage_ratio": {
+                                            "description": "Ratio of pipeline value to target",
+                                            "type": "number"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/crm/analytics/performance": {
+            "get": {
+                "tags": [
+                    "CRM - Analytics"
+                ],
+                "summary": "Agent Performance KPIs",
+                "description": "Returns agent-specific performance stats. Suggested Chart: Bar Chart or KPI Cards.",
+                "operationId": "20bd9ced4369a5443d3fb5627d2cbc1a",
+                "parameters": [
+                    {
+                        "name": "agent_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Performance data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "won_deals_count": {
+                                            "type": "integer"
+                                        },
+                                        "total_revenue": {
+                                            "type": "number"
+                                        },
+                                        "activities_completed": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/crm/contacts": {
+            "get": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Get list of contacts",
+                "description": "Returns list of contacts",
+                "operationId": "getContactsList",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "first_name": {
+                                                        "type": "string",
+                                                        "example": "John"
+                                                    },
+                                                    "last_name": {
+                                                        "type": "string",
+                                                        "example": "Doe"
+                                                    },
+                                                    "email": {
+                                                        "type": "string",
+                                                        "example": "john@example.com"
+                                                    },
+                                                    "lead_status": {
+                                                        "type": "string",
+                                                        "example": "new"
+                                                    },
+                                                    "owner_id": {
+                                                        "type": "integer",
+                                                        "example": 10
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "links": {
+                                            "type": "object"
+                                        },
+                                        "meta": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
             "post": {
                 "tags": [
                     "Contacts"
@@ -62,14 +1195,2715 @@
                     "400": {
                         "description": "Bad Request"
                     }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/crm/contacts/{id}": {
+            "get": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Get Contact Details",
+                "operationId": "02c9d2c807699e20c78f4b8db84c131d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "attributes": {
+                                                    "$ref": "#/components/schemas/Contact"
+                                                },
+                                                "timeline": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "associations": {
+                                                    "properties": {
+                                                        "deals": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "tickets": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "companies": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "properties": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object"
+                                                            }
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Contact not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/crm/contacts/{id}/assign": {
+            "post": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Assign Contact to Agent",
+                "operationId": "fbb564309dba001eb9cd898a051800c1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "owner_id": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Assigned"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/crm/contacts/{id}/analytics": {
+            "get": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Get Contact Analytics",
+                "operationId": "a6ab53289ff5e0ea357d95400878427b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Analytics data"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/crm/deals": {
+            "get": {
+                "tags": [
+                    "CRM - Deals"
+                ],
+                "summary": "List User's Deals",
+                "operationId": "a0141aeb647e5693148d3701e1995e88",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "pipeline_id",
+                        "in": "query",
+                        "description": "Filter by Pipeline ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 500
+                                                    },
+                                                    "title": {
+                                                        "type": "string",
+                                                        "example": "Big Deal 2024"
+                                                    },
+                                                    "amount": {
+                                                        "type": "number",
+                                                        "example": 50000
+                                                    },
+                                                    "stage_id": {
+                                                        "type": "integer",
+                                                        "example": 2
+                                                    },
+                                                    "status": {
+                                                        "type": "string",
+                                                        "example": "open"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "links": {
+                                            "type": "object"
+                                        },
+                                        "meta": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "CRM - Deals"
+                ],
+                "summary": "Create New Deal",
+                "operationId": "28faada542dc3d4ffb7ceb0b7d133b1b",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "pipeline_id",
+                                    "stage_id"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "New Opportunity"
+                                    },
+                                    "amount": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 150000
+                                    },
+                                    "pipeline_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "stage_id": {
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "open",
+                                            "won",
+                                            "lost"
+                                        ],
+                                        "example": "open"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Deal created successfully"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/crm/deals/{id}": {
+            "get": {
+                "tags": [
+                    "CRM - Deals"
+                ],
+                "summary": "Get Deal Details",
+                "operationId": "17ce7c2969360558232ba06253f442d6",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Deal ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 500
+                                                },
+                                                "attributes": {
+                                                    "$ref": "#/components/schemas/Deal"
+                                                },
+                                                "timeline": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "associations": {
+                                                    "properties": {
+                                                        "contacts": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "companies": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "tickets": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "properties": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object"
+                                                            }
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Deal not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "CRM - Deals"
+                ],
+                "summary": "Update Deal",
+                "operationId": "1fb05cbf18d38346b29fb1311e65dcea",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "amount": {
+                                        "type": "number"
+                                    },
+                                    "status": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "CRM - Deals"
+                ],
+                "summary": "Delete Deal",
+                "operationId": "d0336a424ab066f2d2b8bc86af6cb857",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/crm/deals/{id}/stage": {
+            "post": {
+                "tags": [
+                    "CRM - Deals"
+                ],
+                "summary": "Move Deal Stage",
+                "operationId": "896aa5111c8b1df7f11f62114583456e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "stage_id": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Stage updated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/crm/deals/{id}/win": {
+            "post": {
+                "tags": [
+                    "CRM - Deals"
+                ],
+                "summary": "Mark Deal as Won",
+                "operationId": "0908576639545ec0fc8dd39e296a3825",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deal Won"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/crm/deals/{id}/lose": {
+            "post": {
+                "tags": [
+                    "CRM - Deals"
+                ],
+                "summary": "Mark Deal as Lost",
+                "operationId": "e3faf1b2fd2c22130a687bdd12f8bf73",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "lost_reason": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Deal Lost"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/crm/deals/{id}/analytics": {
+            "get": {
+                "tags": [
+                    "CRM - Deals"
+                ],
+                "summary": "Get Deal Analytics",
+                "operationId": "efea02c35d49c18e825456c30c6b5634",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Analytics data"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/crm/meetings": {
+            "get": {
+                "tags": [
+                    "CRM Meetings"
+                ],
+                "summary": "List meetings",
+                "operationId": "2778cdc4223149e60e3a5bfdac86c538",
+                "responses": {
+                    "200": {
+                        "description": "List of meetings",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 400
+                                                    },
+                                                    "subject": {
+                                                        "type": "string",
+                                                        "example": "Zoom Review"
+                                                    },
+                                                    "scheduled_at": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "meeting_type": {
+                                                        "type": "string",
+                                                        "example": "online"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "links": {
+                                            "type": "object"
+                                        },
+                                        "meta": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "CRM Meetings"
+                ],
+                "summary": "Schedule meeting",
+                "operationId": "bf5a6fd31898385834f138bf4ebef4d1",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "subject",
+                                    "scheduled_at"
+                                ],
+                                "properties": {
+                                    "subject": {
+                                        "type": "string",
+                                        "example": "Client viewing"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "scheduled_at": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "duration_minutes": {
+                                        "type": "integer",
+                                        "example": 60
+                                    },
+                                    "meeting_type": {
+                                        "type": "string",
+                                        "example": "in_person"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/crm/meetings/{id}": {
+            "get": {
+                "tags": [
+                    "CRM Meetings"
+                ],
+                "summary": "Get meeting details",
+                "operationId": "6d806e029416d00d2b25f697cdba25ac",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Meeting details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 400
+                                                },
+                                                "attributes": {
+                                                    "$ref": "#/components/schemas/Meeting"
+                                                },
+                                                "timeline": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "associations": {
+                                                    "properties": {
+                                                        "contacts": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "deals": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "tickets": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object"
+                                                            }
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "CRM Meetings"
+                ],
+                "summary": "Update meeting",
+                "operationId": "7cc5ec3c53d19bb68bee8cc66b527282",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "CRM Meetings"
+                ],
+                "summary": "Cancel/Delete meeting",
+                "operationId": "f6b6fecf9e054f57a160b43f0dc38fe3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/crm/pipelines": {
+            "get": {
+                "tags": [
+                    "CRM - Pipelines"
+                ],
+                "summary": "List Pipelines",
+                "operationId": "ac97485b6814005dd389eb9e3db0b6d5",
+                "responses": {
+                    "200": {
+                        "description": "List of pipelines with stages",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Pipeline"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "CRM - Pipelines"
+                ],
+                "summary": "Create Pipeline",
+                "operationId": "05a9b85938cdeda8a53569d95b09dc99",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "entity_type"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Sales Pipeline"
+                                    },
+                                    "entity_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "deal",
+                                            "ticket"
+                                        ],
+                                        "example": "deal"
+                                    },
+                                    "stages": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "New Lead"
+                                                },
+                                                "probability": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Pipeline created"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/crm/pipelines/{id}": {
+            "get": {
+                "tags": [
+                    "CRM - Pipelines"
+                ],
+                "summary": "Get Pipeline Details",
+                "operationId": "cc880eff0b085793c019c2b37797f80a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Pipeline details"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "CRM - Pipelines"
+                ],
+                "summary": "Update Pipeline",
+                "operationId": "15da2fd3867825da5d874eacd0191aab",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "stages": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "id": {
+                                                    "description": "If present updates existing stage, else creates new",
+                                                    "type": "integer",
+                                                    "nullable": true
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "probability": {
+                                                    "type": "integer"
+                                                },
+                                                "position": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "CRM - Pipelines"
+                ],
+                "summary": "Delete Pipeline",
+                "operationId": "e54bc210a99d07e94960d9f903e7af4d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/crm/tasks": {
+            "get": {
+                "tags": [
+                    "CRM Tasks"
+                ],
+                "summary": "List tasks",
+                "operationId": "895fe86c728a60de027f3e391569b36a",
+                "responses": {
+                    "200": {
+                        "description": "List of tasks",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 300
+                                                    },
+                                                    "title": {
+                                                        "type": "string",
+                                                        "example": "Follow up Call"
+                                                    },
+                                                    "status": {
+                                                        "type": "string",
+                                                        "example": "pending"
+                                                    },
+                                                    "priority": {
+                                                        "type": "string",
+                                                        "example": "medium"
+                                                    },
+                                                    "due_date": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "links": {
+                                            "type": "object"
+                                        },
+                                        "meta": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "CRM Tasks"
+                ],
+                "summary": "Create task",
+                "operationId": "7a498ca22fc0c23dd9c7e8511e7195d2",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "title"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Follow up call"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "due_date": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "priority": {
+                                        "type": "string",
+                                        "enum": [
+                                            "low",
+                                            "medium",
+                                            "high"
+                                        ],
+                                        "example": "medium"
+                                    },
+                                    "assigned_to": {
+                                        "description": "User ID to assign",
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/crm/tasks/{id}": {
+            "get": {
+                "tags": [
+                    "CRM Tasks"
+                ],
+                "summary": "Get task details",
+                "operationId": "b56fe778c1e0a3f03057560511bb1cc8",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Task details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 300
+                                                },
+                                                "attributes": {
+                                                    "$ref": "#/components/schemas/Task"
+                                                },
+                                                "timeline": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "associations": {
+                                                    "properties": {
+                                                        "contacts": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "deals": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "tickets": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "properties": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object"
+                                                            }
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "CRM Tasks"
+                ],
+                "summary": "Update task",
+                "operationId": "126b0f7039d362a08a81cec9f784be08",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "CRM Tasks"
+                ],
+                "summary": "Delete task",
+                "operationId": "b3735ff4095d8f3e0fb55f0531553275",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/crm/tickets": {
+            "get": {
+                "tags": [
+                    "CRM - Tickets"
+                ],
+                "summary": "List User's Tickets",
+                "operationId": "bd903a1d53e1dbb3d18133397c531bc3",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Filter by Status",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 200
+                                                    },
+                                                    "title": {
+                                                        "type": "string",
+                                                        "example": "Urgent Support"
+                                                    },
+                                                    "status": {
+                                                        "type": "string",
+                                                        "example": "new"
+                                                    },
+                                                    "priority": {
+                                                        "type": "string",
+                                                        "example": "high"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "links": {
+                                            "type": "object"
+                                        },
+                                        "meta": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "CRM - Tickets"
+                ],
+                "summary": "Create New Ticket",
+                "operationId": "c376a2bd95c334307304a0943b1fa33a",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "pipeline_id",
+                                    "stage_id"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "New Requirement"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Client needs..."
+                                    },
+                                    "pipeline_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "stage_id": {
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "priority": {
+                                        "type": "string",
+                                        "enum": [
+                                            "low",
+                                            "medium",
+                                            "high"
+                                        ],
+                                        "example": "medium"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Ticket created successfully"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/crm/tickets/{id}": {
+            "get": {
+                "tags": [
+                    "CRM - Tickets"
+                ],
+                "summary": "Get Ticket Details",
+                "operationId": "a29fd63c4c925637eb38100b251b919c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Ticket ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 200
+                                                },
+                                                "attributes": {
+                                                    "$ref": "#/components/schemas/Ticket"
+                                                },
+                                                "timeline": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "associations": {
+                                                    "properties": {
+                                                        "contacts": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "companies": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "deals": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object"
+                                                            }
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Ticket not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "CRM - Tickets"
+                ],
+                "summary": "Update Ticket",
+                "operationId": "e2e84dd3ec9a2f60c4ab745c9be0fc4e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "status": {
+                                        "type": "string"
+                                    },
+                                    "priority": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "CRM - Tickets"
+                ],
+                "summary": "Delete Ticket",
+                "operationId": "804491c0f57448fb6ad196b143774621",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/crm/tickets/{id}/assign": {
+            "post": {
+                "tags": [
+                    "CRM - Tickets"
+                ],
+                "summary": "Assign Ticket",
+                "operationId": "824c1c8cc6337c8abf415177224782be",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "owner_id": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Assigned"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/crm/tickets/{id}/resolve": {
+            "post": {
+                "tags": [
+                    "CRM - Tickets"
+                ],
+                "summary": "Resolve Ticket",
+                "operationId": "fc748ad676d844cffad2065e95e1aa93",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Resolved"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/crm/tickets/{id}/analytics": {
+            "get": {
+                "tags": [
+                    "CRM - Tickets"
+                ],
+                "summary": "Get Ticket Analytics",
+                "operationId": "744618053fc53fd361fbc4b01405ff0c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Analytics data"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/real-estate/search": {
+            "get": {
+                "tags": [
+                    "Real Estate Properties"
+                ],
+                "summary": "Search Properties (Geo + Filters)",
+                "operationId": "659c0bd8cac7e1dedba415318d096613",
+                "parameters": [
+                    {
+                        "name": "sw_lat",
+                        "in": "query",
+                        "schema": {
+                            "type": "number",
+                            "format": "float"
+                        }
+                    },
+                    {
+                        "name": "sw_lng",
+                        "in": "query",
+                        "schema": {
+                            "type": "number",
+                            "format": "float"
+                        }
+                    },
+                    {
+                        "name": "ne_lat",
+                        "in": "query",
+                        "schema": {
+                            "type": "number",
+                            "format": "float"
+                        }
+                    },
+                    {
+                        "name": "ne_lng",
+                        "in": "query",
+                        "schema": {
+                            "type": "number",
+                            "format": "float"
+                        }
+                    },
+                    {
+                        "name": "category_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "min_price",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "max_price",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Search results"
+                    }
                 }
+            }
+        },
+        "/api/real-estate": {
+            "get": {
+                "tags": [
+                    "Real Estate Properties"
+                ],
+                "summary": "List Properties (Public)",
+                "operationId": "f15f2143bb0e01d766bfe2d0afc9b2d8",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "price_asc",
+                                "price_desc",
+                                "updated"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of properties"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Real Estate Properties"
+                ],
+                "summary": "Create Property (Auth)",
+                "operationId": "f51c5ad89b75f69b9b2bf19033355013",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "price"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "price": {
+                                        "type": "number"
+                                    },
+                                    "category_id": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/real-estate/mine": {
+            "get": {
+                "tags": [
+                    "Real Estate Properties"
+                ],
+                "summary": "Get My Properties",
+                "operationId": "76362caa38d23df355efc1aab4f3337d",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of my properties"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/real-estate/{id}": {
+            "get": {
+                "tags": [
+                    "Real Estate Properties"
+                ],
+                "summary": "Get Property Details",
+                "operationId": "8b06d70e89d705fe1f752270ce41a71e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Property details"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Real Estate Properties"
+                ],
+                "summary": "Update Property (Auth)",
+                "operationId": "14d397da8f74d3fafa680009b8166521",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "price": {
+                                        "type": "number"
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "draft",
+                                            "published",
+                                            "archived"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Real Estate Properties"
+                ],
+                "summary": "Delete Property",
+                "operationId": "da3041086b18fb63d767cd89d71e32f5",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/real-estate/{property}/contact": {
+            "post": {
+                "tags": [
+                    "Real Estate Properties"
+                ],
+                "summary": "Contact Agent (Send Inquiry)",
+                "operationId": "dca39ae8ad2493602605573407de6465",
+                "parameters": [
+                    {
+                        "name": "property",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "message"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "phone": {
+                                        "type": "string"
+                                    },
+                                    "message": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Inquiry sent"
+                    }
+                }
+            }
+        },
+        "/api/real-estate/{property}/favorite": {
+            "post": {
+                "tags": [
+                    "Real Estate Properties"
+                ],
+                "summary": "Toggle Favorite",
+                "operationId": "6b87bc56e0fb9c8f10c60419e6bb92dd",
+                "parameters": [
+                    {
+                        "name": "property",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Toggled"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/real-estate/{property}/duplicate": {
+            "post": {
+                "tags": [
+                    "Real Estate Properties"
+                ],
+                "summary": "Duplicate Property",
+                "operationId": "5a840b7d2a3e8ed19971fa6e1cd66f41",
+                "parameters": [
+                    {
+                        "name": "property",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Duplicated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/real-estate/{property}/archive": {
+            "put": {
+                "tags": [
+                    "Real Estate Properties"
+                ],
+                "summary": "Archive Property",
+                "operationId": "419fde709a76a02655514ff39392f0ea",
+                "parameters": [
+                    {
+                        "name": "property",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Archived"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/real-estate/{property}/analytics": {
+            "get": {
+                "tags": [
+                    "Real Estate Properties"
+                ],
+                "summary": "Get Property Analytics",
+                "operationId": "d3efb094261621286fa74d58f756b757",
+                "parameters": [
+                    {
+                        "name": "property",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Analytics data"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/user": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get User Profile",
+                "operationId": "b02a7a2a0a8da8486e590a1be690f3cd",
+                "responses": {
+                    "200": {
+                        "description": "User profile"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/user/profile": {
+            "put": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update User Profile",
+                "operationId": "ef8cff62e38652f6c244cdc2f0cdadb4",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated profile"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/user/analytics": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get User Analytics",
+                "operationId": "2d10529c40f3682458dc78cadca000ef",
+                "responses": {
+                    "200": {
+                        "description": "User analytics"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Activity": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "content": {
+                        "type": "string"
+                    },
+                    "scheduled_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Building": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "address": {
+                        "type": "string"
+                    },
+                    "floors": {
+                        "type": "integer"
+                    },
+                    "year_built": {
+                        "type": "integer"
+                    },
+                    "lat": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "lng": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Company": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "industry": {
+                        "type": "string"
+                    },
+                    "domain": {
+                        "type": "string"
+                    },
+                    "phone": {
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Contact": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "first_name": {
+                        "type": "string"
+                    },
+                    "last_name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "lead_status": {
+                        "type": "string"
+                    },
+                    "owner_id": {
+                        "type": "integer"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Deal": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "currency": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "pipeline_id": {
+                        "type": "integer"
+                    },
+                    "stage_id": {
+                        "type": "integer"
+                    },
+                    "expected_close_date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Meeting": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "subject": {
+                        "type": "string"
+                    },
+                    "meeting_type": {
+                        "type": "string"
+                    },
+                    "scheduled_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "duration_minutes": {
+                        "type": "integer"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Pipeline": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "entity_type": {
+                        "type": "string"
+                    },
+                    "stages": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PipelineStage"
+                        }
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "PipelineStage": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "pipeline_id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "position": {
+                        "type": "integer"
+                    },
+                    "probability": {
+                        "type": "integer"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Property": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "currency": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "publisher_id": {
+                        "type": "integer"
+                    },
+                    "publisher_type": {
+                        "type": "string"
+                    },
+                    "lat": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "lng": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "address": {
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Task": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "due_date": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "priority": {
+                        "type": "string"
+                    },
+                    "assigned_to": {
+                        "type": "integer"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Ticket": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "priority": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "pipeline_id": {
+                        "type": "integer"
+                    },
+                    "stage_id": {
+                        "type": "integer"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "User": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "role_id": {
+                        "type": "integer"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
             }
         }
     },
     "tags": [
         {
+            "name": "Agents",
+            "description": "API Endpoints for Agent Profile & Stats"
+        },
+        {
+            "name": "Authentication",
+            "description": "API Endpoints for User Authentication"
+        },
+        {
+            "name": "Real Estate Buildings",
+            "description": "API Endpoints for Building Management"
+        },
+        {
+            "name": "CRM Activities",
+            "description": "API Endpoints for Activities (Logs, Notes, Calls)"
+        },
+        {
+            "name": "CRM - Analytics",
+            "description": "Statistical endpoints for Agent/Pipeline performance"
+        },
+        {
+            "name": "CRM - Deals",
+            "description": "API Endpoints for managing Deals/Opportunities"
+        },
+        {
+            "name": "CRM Meetings",
+            "description": "API Endpoints for Meeting Management"
+        },
+        {
+            "name": "CRM - Pipelines",
+            "description": "Manage Deal/Ticket Pipelines and Stages"
+        },
+        {
+            "name": "CRM Tasks",
+            "description": "API Endpoints for Task Management"
+        },
+        {
+            "name": "CRM - Tickets",
+            "description": "API Endpoints for managing Support Tickets/Requirements"
+        },
+        {
+            "name": "Real Estate Properties",
+            "description": "API Endpoints for Property Search & Management"
+        },
+        {
+            "name": "Chat",
+            "description": "Chat"
+        },
+        {
             "name": "Contacts",
             "description": "Contacts"
+        },
+        {
+            "name": "Users",
+            "description": "Users"
         }
     ]
 }

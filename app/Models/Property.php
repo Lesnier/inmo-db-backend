@@ -14,6 +14,26 @@ class Property extends Model
 {
     use HasFactory, HasPublisher, \App\Traits\HasAssociations;
 
+    // Duplicate traits removed
+    
+    /**
+     * @OA\Schema(
+     *     schema="Property",
+     *     type="object",
+     *     @OA\Property(property="id", type="integer"),
+     *     @OA\Property(property="title", type="string"),
+     *     @OA\Property(property="price", type="number", format="float"),
+     *     @OA\Property(property="currency", type="string"),
+     *     @OA\Property(property="status", type="string"),
+     *     @OA\Property(property="publisher_id", type="integer"),
+     *     @OA\Property(property="publisher_type", type="string"),
+     *     @OA\Property(property="lat", type="number", format="float"),
+     *     @OA\Property(property="lng", type="number", format="float"),
+     *     @OA\Property(property="address", type="string"),
+     *     @OA\Property(property="created_at", type="string", format="date-time"),
+     *     @OA\Property(property="updated_at", type="string", format="date-time")
+     * )
+     */
     protected $table = 'inmo_properties';
 
     protected $fillable = [
@@ -38,6 +58,10 @@ class Property extends Model
         'lng',
         'location',
         'data',
+    ];
+
+    protected $hidden = [
+        'location', // Geometry binary data breaks JSON
     ];
 
     protected $casts = [

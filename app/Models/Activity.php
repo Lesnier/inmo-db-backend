@@ -9,7 +9,20 @@ class Activity extends Model
 {
     use \Illuminate\Database\Eloquent\Factories\HasFactory;
     use \App\Traits\HasAssociations;
-
+    
+    /**
+     * @OA\Schema(
+     *     schema="Activity",
+     *     type="object",
+     *     @OA\Property(property="id", type="integer"),
+     *     @OA\Property(property="type", type="string"),
+     *     @OA\Property(property="content", type="string"),
+     *     @OA\Property(property="scheduled_at", type="string", format="date-time"),
+     *     @OA\Property(property="status", type="string"),
+     *     @OA\Property(property="created_at", type="string", format="date-time"),
+     *     @OA\Property(property="updated_at", type="string", format="date-time")
+     * )
+     */
     protected $table = 'inmo_activities';
 
     protected $fillable = [

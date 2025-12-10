@@ -48,9 +48,9 @@ class PropertyFactory extends Factory
         ];
 
         return [
-            'publisher_id' => \App\Models\User::factory(), // Default
+            // 'publisher_id' => \App\Models\User::factory(), // Moved to configure
             'publisher_type' => 'private_person',
-            'category_id' => null, // Can be set in state or seeding
+            'category_id' => null, 
             'building_id' => null,
             'operation_type' => $this->faker->randomElement(['rent', 'sell']),
             'title' => $title,
@@ -67,13 +67,17 @@ class PropertyFactory extends Factory
             'street_address' => $this->faker->streetAddress(),
             'lat' => $lat,
             'lng' => $lng,
-            'data' => $data,
+            'data' => PropertyData::fromArray($data),
         ];
     }
 
     public function configure()
     {
         return $this->afterMaking(function (Property $property) {
+            if ($property->publisher_id) {
+                return;
+            }
+
             if ($this->faker->boolean()) {
                 $agent = Agent::factory()->create();
                 $property->publisher_id = $agent->user_id; // FK to users

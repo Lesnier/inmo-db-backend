@@ -27,10 +27,10 @@ class PropertyTest extends TestCase
     {
         $property = Property::factory()->create(['status' => 'published']);
 
-        $response = $this->getJson("/api/real-estate/properties/{$property->id}");
+        $response = $this->getJson("/api/real-estate/{$property->id}");
 
         $response->assertStatus(200)
-                 ->assertJsonPath('data.id', $property->id);
+                 ->assertJsonPath('id', $property->id);
     }
 
     public function test_agent_can_create_property()
@@ -50,7 +50,7 @@ class PropertyTest extends TestCase
         ];
 
         $response = $this->actingAs($agent)
-                         ->postJson('/api/real-estate/properties', $payload);
+                         ->postJson('/api/real-estate', $payload);
 
         $response->assertStatus(201);
         $this->assertDatabaseHas('inmo_properties', ['title' => 'New Luxury Villa']);
@@ -61,7 +61,7 @@ class PropertyTest extends TestCase
         $agent = User::factory()->create();
         $property = Property::factory()->create([
             'publisher_id' => $agent->id,
-            'publisher_type' => 'user' // or agent depending on polymorphic logic
+            'publisher_type' => User::class
         ]);
 
         // Fix polymorphic issue if factory defaults wrong
@@ -72,7 +72,7 @@ class PropertyTest extends TestCase
         $payload = ['title' => 'Updated Title'];
 
         $response = $this->actingAs($agent)
-                         ->putJson("/api/real-estate/properties/{$property->id}", $payload);
+                         ->putJson("/api/real-estate/{$property->id}", $payload);
 
         $response->assertStatus(200);
         $this->assertDatabaseHas('inmo_properties', ['id' => $property->id, 'title' => 'Updated Title']);
@@ -89,7 +89,7 @@ class PropertyTest extends TestCase
         ]);
 
         $response = $this->actingAs($thief)
-                         ->putJson("/api/real-estate/properties/{$property->id}", ['title' => 'Hacked']);
+                         ->putJson("/api/real-estate/{$property->id}", ['title' => 'Hacked']);
 
         $response->assertStatus(403);
     }

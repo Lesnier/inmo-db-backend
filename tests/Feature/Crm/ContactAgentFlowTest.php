@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Crm;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\User;
@@ -18,40 +18,41 @@ use TCG\Voyager\Models\Role;
 
 class ContactAgentFlowTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
 
     protected function setUp(): void
     {
         parent::setUp();
-        // Seed Roles if needed or create manuall
-        // We need Sales Pipeline
-        $pipeline = Pipeline::create(['name' => 'Sales', 'slug' => 'sales']);
-        PipelineStage::factory()->create(['pipeline_id' => $pipeline->id, 'order' => 1]);
+        // Ensure Sales Pipeline exists
+        if (!Pipeline::where('name', 'Sales')->exists()) {
+             $pipeline = Pipeline::create(['name' => 'Sales', 'entity_type' => 'deal']);
+             PipelineStage::factory()->create(['pipeline_id' => $pipeline->id, 'position' => 1]);
+        }
     }
 
     public function test_contacting_agent_triggers_crm_automation()
     {
         // 1. Setup Data
-        $agent = User::factory()->create(['email' => 'agent@example.com']);
-        $property = Property::factory()->create([
-            'agent_id' => $agent->id, // Assuming property has agent_id column or relation through publisher
-            'publisher_id' => $agent->id,
-            'publisher_type' => 'real_estate_agent'
+        // Create Role matching PublisherType
+        $roleName = 'real_estate_agent'; // From PublisherType enum
+        $role = Role::firstOrCreate(['name' => $roleName], ['display_name' => 'Real Estate Agent']);
+        
+        $agent = User::factory()->create([
+            'email' => 'agent_' . uniqid() . '@example.com',
+            'role_id' => $role->id
         ]);
         
-        // Ensure property has agent_id set correctly if controller relies on it
-        // The Controller uses $property->agent_id
-        if (!$property->agent_id) {
-             $property->agent_id = $agent->id;
-             $property->save();
-        }
-
-        $user = User::factory()->create(['email' => 'client@example.com']);
+        $property = Property::factory()->create([
+            'publisher_id' => $agent->id,
+            'publisher_type' => $roleName // e.g. 'real_estate_agent'
+        ]);
+        
+        $user = User::factory()->create(['email' => 'client_' . uniqid() . '@example.com']);
 
         // 2. Perform Request (Auth User contacts Agent)
         $payload = [
             'name' => 'Interested Client',
-            'email' => 'client@example.com', // Matches user email
+            'email' => $user->email,
             'phone' => '123456789',
             'message' => 'I want to buy this house.'
         ];
@@ -67,7 +68,7 @@ class ContactAgentFlowTest extends TestCase
         // $this->assertDatabaseHas('property_contacts', ...);
 
         // B. Verify CRM Contact (Should be found/created by email)
-        $contact = Contact::where('email', 'client@example.com')->first();
+        $contact = Contact::where('email', $user->email)->first();
         $this->assertNotNull($contact, 'CRM Contact not created');
         $this->assertEquals($agent->id, $contact->owner_id);
 
@@ -122,6 +123,6 @@ class ContactAgentFlowTest extends TestCase
         $message = $chat->messages()->latest()->first();
         $this->assertNotNull($message);
         $this->assertEquals('I want to buy this house.', $message->content);
-        $this->assertEquals($user->id, $message->sender_id);
+        $this->assertEquals($user->id, $message->user_id);
     }
 }

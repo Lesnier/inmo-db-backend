@@ -11,10 +11,39 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use App\Http\Controllers\Controller;
 
+/**
+ * @OA\Tag(
+ *     name="Authentication",
+ *     description="API Endpoints for User Authentication"
+ * )
+ */
 class AuthController extends Controller
 {
     /**
-     * POST /api/auth/login
+     * @OA\Post(
+     *     path="/api/auth/login",
+     *     summary="User Login",
+     *     tags={"Authentication"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email","password"},
+     *             @OA\Property(property="email", type="string", format="email", example="user@example.com"),
+     *             @OA\Property(property="password", type="string", format="password", example="secret")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Login Successful",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="token", type="string", example="1|laravel_sanctum_token..."),
+     *             @OA\Property(property="user", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(response=422, description="Validation Error"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      */
     public function login(Request $request): JsonResponse
     {
@@ -72,7 +101,33 @@ class AuthController extends Controller
     }
 
     /**
-     * POST /api/auth/register
+     * @OA\Post(
+     *     path="/api/auth/register",
+     *     summary="User Registration",
+     *     tags={"Authentication"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name","email","password","password_confirmation"},
+     *             @OA\Property(property="name", type="string", example="John Doe"),
+     *             @OA\Property(property="email", type="string", format="email", example="john@example.com"),
+     *             @OA\Property(property="password", type="string", format="password", example="secret"),
+     *             @OA\Property(property="password_confirmation", type="string", format="password", example="secret"),
+     *             @OA\Property(property="role", type="string", enum={"user","agent"}, example="user"),
+     *             @OA\Property(property="agent_data", type="object", description="Optional agent profile data")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Registration Successful",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="token", type="string"),
+     *             @OA\Property(property="user", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(response=422, description="Validation Error")
+     * )
      */
     public function register(Request $request): JsonResponse
     {
@@ -152,12 +207,20 @@ class AuthController extends Controller
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
+            \Illuminate\Support\Facades\Log::error('Registration Error: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error($e->getTraceAsString());
             throw $e;
         }
     }
 
     /**
-     * POST /api/auth/logout (auth)
+     * @OA\Post(
+     *     path="/api/auth/logout",
+     *     summary="User Logout",
+     *     tags={"Authentication"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(response=200, description="Logged out")
+     * )
      */
     public function logout(Request $request): JsonResponse
     {

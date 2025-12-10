@@ -13,7 +13,21 @@ class Contact extends Model
     protected $table = 'inmo_contacts';
 
     use \App\Traits\HasAssociations;
-
+    
+    /**
+     * @OA\Schema(
+     *     schema="Contact",
+     *     type="object",
+     *     @OA\Property(property="id", type="integer"),
+     *     @OA\Property(property="first_name", type="string"),
+     *     @OA\Property(property="last_name", type="string"),
+     *     @OA\Property(property="email", type="string"),
+     *     @OA\Property(property="lead_status", type="string"),
+     *     @OA\Property(property="owner_id", type="integer"),
+     *     @OA\Property(property="created_at", type="string", format="date-time"),
+     *     @OA\Property(property="updated_at", type="string", format="date-time")
+     * )
+     */
     protected $fillable = [
         'user_id',
         'owner_id', // Explicit owner

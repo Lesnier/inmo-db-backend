@@ -37,7 +37,7 @@ class PropertyPolicy
      */
     public function update(User $user, Property $property): bool
     {
-        return $user->id === $property->agent_id || $user->role === 'admin';
+        return $user->id === $property->publisher_id || $user->role === 'admin';
     }
 
     /**

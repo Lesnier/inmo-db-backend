@@ -6,14 +6,13 @@ use App\Models\User;
 use App\Models\Contact;
 use App\Models\Pipeline;
 use App\Models\PipelineStage;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 class CrmApiTest extends TestCase
 {
-    use RefreshDatabase;
-    protected $seed = true; // Voyager needs roles/data types
+    use DatabaseTransactions;
+    // protected $seed = true; // Optimization: Seed only what's needed
 
     // Use RefreshDatabase to reset DB after tests? 
     // Since we just seeded, maybe better to use Transaction trait or just create data on the fly.

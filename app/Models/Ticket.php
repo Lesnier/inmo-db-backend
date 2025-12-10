@@ -11,7 +11,21 @@ class Ticket extends Model
     use HasFactory, HasAssociations;
 
     protected $table = 'inmo_tickets';
-
+    
+    /**
+     * @OA\Schema(
+     *     schema="Ticket",
+     *     type="object",
+     *     @OA\Property(property="id", type="integer"),
+     *     @OA\Property(property="title", type="string"),
+     *     @OA\Property(property="priority", type="string"),
+     *     @OA\Property(property="status", type="string"),
+     *     @OA\Property(property="pipeline_id", type="integer"),
+     *     @OA\Property(property="stage_id", type="integer"),
+     *     @OA\Property(property="created_at", type="string", format="date-time"),
+     *     @OA\Property(property="updated_at", type="string", format="date-time")
+     * )
+     */
     protected $fillable = [
         'title',
         'description',

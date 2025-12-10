@@ -24,49 +24,28 @@ class ContactController extends Controller
      *      tags={"Contacts"},
      *      summary="Get list of contacts",
      *      description="Returns list of contacts",
+     *      security={{"sanctum":{}}},
+     *      @OA\Parameter(name="page", in="query", @OA\Schema(type="integer")),
+     *      @OA\Parameter(name="search", in="query", @OA\Schema(type="string")),
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
-     *      ),
-     *      @OA\Response(
-     *          response=401,
-     *          description="Unauthenticated",
-     *      ),
-     *      @OA\Response(
-     *          response=403,
-     *          description="Forbidden"
-     *      )
-     * )
-     */
-     
-    /**
-     * @OA\Post(
-     *      path="/api/crm/contacts",
-     *      operationId="storeContact",
-     *      tags={"Contacts"},
-     *      summary="Store new contact",
-     *      description="Returns contact data",
-     *      @OA\RequestBody(
-     *          required=true,
      *          @OA\JsonContent(
-     *              required={"first_name"},
-     *              @OA\Property(property="first_name", type="string", example="John"),
-     *              @OA\Property(property="last_name", type="string", example="Doe"),
-     *              @OA\Property(property="email", type="string", format="email", example="john.doe@test.com"),
-     *              @OA\Property(property="mobile", type="string", example="123456789"),
+     *              @OA\Property(property="data", type="array", @OA\Items(
+     *                  @OA\Property(property="id", type="integer", example=1),
+     *                  @OA\Property(property="first_name", type="string", example="John"),
+     *                  @OA\Property(property="last_name", type="string", example="Doe"),
+     *                  @OA\Property(property="email", type="string", example="john@example.com"),
+     *                  @OA\Property(property="lead_status", type="string", example="new"),
+     *                  @OA\Property(property="owner_id", type="integer", example=10)
+     *              )),
+     *              @OA\Property(property="links", type="object"),
+     *              @OA\Property(property="meta", type="object")
      *          )
      *      ),
-     *      @OA\Response(
-     *          response=201,
-     *          description="Successful operation",
-     *      ),
-     *      @OA\Response(
-     *          response=400,
-     *          description="Bad Request"
-     *      )
+     *      @OA\Response(response=401, description="Unauthenticated")
      * )
      */
-
     public function index(Request $request)
     {
         $userId = Auth::id();
@@ -100,6 +79,33 @@ class ContactController extends Controller
         });
     }
 
+    /**
+     * @OA\Get(
+     *      path="/api/crm/contacts/{id}",
+     *      tags={"Contacts"},
+     *      summary="Get Contact Details",
+     *      security={{"sanctum":{}}},
+     *      @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="data", type="object",
+     *                  @OA\Property(property="id", type="integer", example=1),
+     *                  @OA\Property(property="attributes", type="object", ref="#/components/schemas/Contact"),
+     *                  @OA\Property(property="timeline", type="array", @OA\Items(type="object")),
+     *                  @OA\Property(property="associations", type="object",
+     *                       @OA\Property(property="deals", type="array", @OA\Items(type="object")),
+     *                       @OA\Property(property="tickets", type="array", @OA\Items(type="object")),
+     *                       @OA\Property(property="companies", type="array", @OA\Items(type="object")),
+     *                       @OA\Property(property="properties", type="array", @OA\Items(type="object"))
+     *                  )
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(response=404, description="Contact not found")
+     * )
+     */
     public function show($id)
     {
         $cacheKey = "crm_contact_{$id}_detail";
@@ -130,6 +136,28 @@ class ContactController extends Controller
         });
     }
 
+    /**
+     * @OA\Post(
+     *      path="/api/crm/contacts",
+     *      operationId="storeContact",
+     *      tags={"Contacts"},
+     *      summary="Store new contact",
+     *      description="Returns contact data",
+     *      security={{"sanctum":{}}},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              required={"first_name"},
+     *              @OA\Property(property="first_name", type="string", example="John"),
+     *              @OA\Property(property="last_name", type="string", example="Doe"),
+     *              @OA\Property(property="email", type="string", format="email", example="john.doe@test.com"),
+     *              @OA\Property(property="mobile", type="string", example="123456789"),
+     *          )
+     *      ),
+     *      @OA\Response(response=201, description="Successful operation"),
+     *      @OA\Response(response=400, description="Bad Request")
+     * )
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -152,5 +180,60 @@ class ContactController extends Controller
         ]));
 
         return response()->json($contact, 201);
+    }
+    /**
+     * @OA\Post(
+     *      path="/api/crm/contacts/{id}/assign",
+     *      tags={"Contacts"},
+     *      summary="Assign Contact to Agent",
+     *      security={{"sanctum":{}}},
+     *      @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(@OA\Property(property="owner_id", type="integer"))
+     *      ),
+     *      @OA\Response(response=200, description="Assigned")
+     * )
+     */
+    public function assign(Request $request, $id)
+    {
+        $request->validate(['owner_id' => 'required|exists:users,id']);
+        $contact = Contact::findOrFail($id);
+        $contact->update(['owner_id' => $request->owner_id]);
+        
+        return response()->json(['message' => 'Contact assigned successfully']);
+    }
+
+    /**
+     * @OA\Get(
+     *      path="/api/crm/contacts/{id}/analytics",
+     *      tags={"Contacts"},
+     *      summary="Get Contact Analytics",
+     *      security={{"sanctum":{}}},
+     *      @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *      @OA\Response(response=200, description="Analytics data")
+     * )
+     */
+    public function analytics($id)
+    {
+        $contact = Contact::findOrFail($id);
+        
+        // Calculate engagement score
+        $activitiesCount = $contact->getAssociated(\App\Models\Activity::class)->count();
+        $dealsCount = $contact->getAssociated(\App\Models\Deal::class)->count();
+
+        // Get real last contacted date from activities
+        $lastActivity = $contact->getAssociated(\App\Models\Activity::class)
+            ->where('scheduled_at', '<=', now())
+            ->orderBy('scheduled_at', 'desc')
+            ->first();
+            
+        return response()->json([
+            'engagement_score' => min(100, $activitiesCount * 5 + $dealsCount * 10),
+            'last_contacted' => $lastActivity ? $lastActivity->scheduled_at : null, 
+            'lead_status' => $contact->lead_status,
+            'total_activities' => $activitiesCount,
+            'total_deals' => $dealsCount
+        ]);
     }
 }

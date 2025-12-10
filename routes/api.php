@@ -55,13 +55,20 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/real-estate', [PropertyController::class, 'store']);
     Route::put('/real-estate/{property}', [PropertyController::class, 'update']);
     Route::delete('/real-estate/{property}', [PropertyController::class, 'destroy']);
+    Route::get('/real-estate/mine', [PropertyController::class, 'myProperties']);
+    
+    // Property Utilities
+    Route::post('/real-estate/{property}/duplicate', [PropertyController::class, 'duplicate']);
+    Route::put('/real-estate/{property}/archive', [PropertyController::class, 'archive']);
+    Route::get('/real-estate/{property}/analytics', [PropertyController::class, 'analytics']);
 
     Route::post('/real-estate/{property}/favorite', [PropertyController::class, 'toggleFavorite']);
     Route::get('/user/favorites', [FavoriteController::class, 'list']);
     
     // User Profile
     Route::get('/user/profile', [UserController::class, 'profile']);
-    Route::put('/user/profile', [UserController::class, 'update']); // Ensure update method exists
+    Route::put('/user/profile', [UserController::class, 'update']); 
+    Route::get('/user/analytics', [UserController::class, 'analytics']);
 
     // Agent Profile
         Route::get('/tickets/{id}', [\App\Http\Controllers\Api\Crm\TicketController::class, 'show']);
@@ -71,12 +78,84 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/agent/profile', [AgentController::class, 'update']);
     Route::get('/agent/stats', [AgentController::class, 'stats']);
 
+    // CRM Routes
+    Route::prefix('crm')->group(function () {
+        // Contacts
+        Route::get('/contacts', [\App\Http\Controllers\Api\Crm\ContactController::class, 'index']);
+        Route::post('/contacts', [\App\Http\Controllers\Api\Crm\ContactController::class, 'store']);
+        Route::get('/contacts/{id}', [\App\Http\Controllers\Api\Crm\ContactController::class, 'show']);
+        Route::put('/contacts/{id}', [\App\Http\Controllers\Api\Crm\ContactController::class, 'update']);
+        Route::delete('/contacts/{id}', [\App\Http\Controllers\Api\Crm\ContactController::class, 'destroy']);
+        // Helpers
+        Route::post('/contacts/{id}/assign', [\App\Http\Controllers\Api\Crm\ContactController::class, 'assign']);
+        Route::get('/contacts/{id}/analytics', [\App\Http\Controllers\Api\Crm\ContactController::class, 'analytics']);
+
+        // Deals
+        Route::get('/deals', [\App\Http\Controllers\Api\Crm\DealController::class, 'index']);
+        Route::post('/deals', [\App\Http\Controllers\Api\Crm\DealController::class, 'store']);
+        Route::get('/deals/{id}', [\App\Http\Controllers\Api\Crm\DealController::class, 'show']);
+        Route::put('/deals/{id}', [\App\Http\Controllers\Api\Crm\DealController::class, 'update']);
+        Route::delete('/deals/{id}', [\App\Http\Controllers\Api\Crm\DealController::class, 'destroy']);
+        // Helpers
+        Route::post('/deals/{id}/stage', [\App\Http\Controllers\Api\Crm\DealController::class, 'moveStage']);
+        Route::post('/deals/{id}/win', [\App\Http\Controllers\Api\Crm\DealController::class, 'markWon']);
+        Route::post('/deals/{id}/lose', [\App\Http\Controllers\Api\Crm\DealController::class, 'markLost']);
+        Route::get('/deals/{id}/analytics', [\App\Http\Controllers\Api\Crm\DealController::class, 'analytics']);
+
+        // Tickets
+        Route::get('/tickets', [\App\Http\Controllers\Api\Crm\TicketController::class, 'index']);
+        Route::post('/tickets', [\App\Http\Controllers\Api\Crm\TicketController::class, 'store']);
+        Route::get('/tickets/{id}', [\App\Http\Controllers\Api\Crm\TicketController::class, 'show']);
+        Route::put('/tickets/{id}', [\App\Http\Controllers\Api\Crm\TicketController::class, 'update']);
+        Route::delete('/tickets/{id}', [\App\Http\Controllers\Api\Crm\TicketController::class, 'destroy']);
+        // Helpers
+        Route::post('/tickets/{id}/assign', [\App\Http\Controllers\Api\Crm\TicketController::class, 'assign']);
+        Route::post('/tickets/{id}/resolve', [\App\Http\Controllers\Api\Crm\TicketController::class, 'resolve']);
+        Route::get('/tickets/{id}/analytics', [\App\Http\Controllers\Api\Crm\TicketController::class, 'analytics']);
+        
+        // CRM Analytics
+        Route::get('/analytics/pipeline', [\App\Http\Controllers\Api\Crm\AgentAnalyticsController::class, 'pipeline']);
+        Route::get('/analytics/stages', [\App\Http\Controllers\Api\Crm\AgentAnalyticsController::class, 'stages']);
+        Route::get('/analytics/forecast', [\App\Http\Controllers\Api\Crm\AgentAnalyticsController::class, 'forecast']);
+        Route::get('/analytics/performance', [\App\Http\Controllers\Api\Crm\AgentAnalyticsController::class, 'performance']);
+
+        // Activities
+        Route::get('/activities', [\App\Http\Controllers\Api\Crm\ActivityController::class, 'index']);
+        Route::post('/activities', [\App\Http\Controllers\Api\Crm\ActivityController::class, 'store']);
+        Route::get('/activities/{id}', [\App\Http\Controllers\Api\Crm\ActivityController::class, 'show']);
+        Route::put('/activities/{id}', [\App\Http\Controllers\Api\Crm\ActivityController::class, 'update']);
+        Route::delete('/activities/{id}', [\App\Http\Controllers\Api\Crm\ActivityController::class, 'destroy']);
+
+        // Tasks
+        Route::get('/tasks', [\App\Http\Controllers\Api\Crm\TaskController::class, 'index']);
+        Route::post('/tasks', [\App\Http\Controllers\Api\Crm\TaskController::class, 'store']);
+        Route::get('/tasks/{id}', [\App\Http\Controllers\Api\Crm\TaskController::class, 'show']);
+        Route::put('/tasks/{id}', [\App\Http\Controllers\Api\Crm\TaskController::class, 'update']);
+        Route::delete('/tasks/{id}', [\App\Http\Controllers\Api\Crm\TaskController::class, 'destroy']);
+
+        // Meetings
+        Route::get('/meetings', [\App\Http\Controllers\Api\Crm\MeetingController::class, 'index']);
+        Route::post('/meetings', [\App\Http\Controllers\Api\Crm\MeetingController::class, 'store']);
+        Route::get('/meetings/{id}', [\App\Http\Controllers\Api\Crm\MeetingController::class, 'show']);
+        Route::put('/meetings/{id}', [\App\Http\Controllers\Api\Crm\MeetingController::class, 'update']);
+        Route::delete('/meetings/{id}', [\App\Http\Controllers\Api\Crm\MeetingController::class, 'destroy']);
+        Route::delete('/meetings/{id}', [\App\Http\Controllers\Api\Crm\MeetingController::class, 'destroy']);
+
+        // Pipelines & Stages
+        Route::get('/pipelines', [\App\Http\Controllers\Api\Crm\PipelineController::class, 'index']);
+        Route::post('/pipelines', [\App\Http\Controllers\Api\Crm\PipelineController::class, 'store']);
+        Route::get('/pipelines/{id}', [\App\Http\Controllers\Api\Crm\PipelineController::class, 'show']);
+        Route::put('/pipelines/{id}', [\App\Http\Controllers\Api\Crm\PipelineController::class, 'update']);
+        Route::delete('/pipelines/{id}', [\App\Http\Controllers\Api\Crm\PipelineController::class, 'destroy']);
+    });
+
     // ...
 
     // Buildings - Auth routes
     Route::post('/real-estate/buildings', [BuildingController::class, 'store']);
     Route::put('/real-estate/buildings/{building}', [BuildingController::class, 'update']);
     Route::delete('/real-estate/buildings/{building}', [BuildingController::class, 'destroy']);
+    Route::get('/real-estate/buildings/{building}/analytics', [BuildingController::class, 'analytics']);
 });
 
 
