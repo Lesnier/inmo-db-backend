@@ -15,24 +15,40 @@ return new class extends Migration
     {
         Schema::create('inmo_contacts', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable(); // If linked to a login user
             $table->string('first_name', 120)->nullable();
             $table->string('last_name', 120)->nullable();
             $table->string('email', 255)->nullable();
-            $table->string('phone', 120)->nullable();
+            $table->string('phone', 50)->nullable();
+            $table->string('mobile', 50)->nullable();
+            
+            // Lifecycle Stage (subscriber, lead, mql, sql, opportunity, customer, evangelist)
+            $table->string('lifecycle_stage', 50)->default('subscriber');
+            $table->string('lead_status', 50)->default('new'); // New, Open, In Progress, etc.
+            
+            // Address Fields for filtering
+            $table->string('country', 120)->nullable();
+            $table->string('state', 120)->nullable();
+            $table->string('city', 120)->nullable();
+            $table->string('address', 255)->nullable();
+            $table->string('zip_code', 20)->nullable();
+
+            // Owner (Explicit)
+            $table->unsignedBigInteger('owner_id')->nullable(); 
+            $table->foreign('owner_id')->references('id')->on('users')->onDelete('set null');
+
+            $table->timestamp('last_activity_at')->nullable();
+            
             $table->json('data')->default(DB::raw('(JSON_OBJECT())'));
             $table->timestamps();
 
-            // Foreign key opcional a users (si el contacto se registra)
+            // Foreign key opcional a users
             $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
 
-            // Índices para búsqueda rápida
+            // Índices
             $table->index('email');
-            $table->index('phone');
             $table->index('user_id');
-
-            // Prevenir duplicados por email o phone
-            $table->unique(['email', 'phone'], 'unique_contact');
+            $table->index('lifecycle_stage');
         });
     }
 

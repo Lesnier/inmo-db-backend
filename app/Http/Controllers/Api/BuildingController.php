@@ -105,7 +105,17 @@ class BuildingController extends Controller
             $counter++;
         }
 
-        $building = Building::create($validated);
+        // Determine Publisher (User or Agent)
+        $user = auth()->user();
+        if ($user->role && $user->role->name === 'agent') {
+             // Logic to find agent record? Or just use user->id as publisher if polymorphic
+             // For now, assume User is publisher.
+        }
+
+        $building = Building::create(array_merge($validated, [
+            'publisher_id' => $user->id,
+            'publisher_type' => \App\Models\User::class, // Or check if agent
+        ]));
 
         return response()->json([
             'success' => true,

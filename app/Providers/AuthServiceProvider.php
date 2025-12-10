@@ -23,6 +23,11 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Allow Admin users to view Pulse
+        \Illuminate\Support\Facades\Gate::define('viewPulse', function ($user) {
+            // Assuming admin user has role_id 1 or role->name 'admin'
+            // Voyager usually sets role_id 1 for admin.
+            return $user->role_id === 1 || $user->email === 'admin@admin.com';
+        });
     }
 }

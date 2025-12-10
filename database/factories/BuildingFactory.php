@@ -2,60 +2,56 @@
 
 namespace Database\Factories;
 
-use App\Models\Building;
 use App\Models\Agent;
+use App\Models\Building;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class BuildingFactory extends Factory
 {
     protected $model = Building::class;
 
-    public function definition(): array
+    public function definition()
     {
-        $name = $this->faker->randomElement([
-            'Edificio ' . $this->faker->streetName,
-            'Conjunto ' . $this->faker->lastName,
-            'Condominio ' . $this->faker->colorName,
-            'Torre ' . $this->faker->firstNameMale,
-            'Residencial ' . $this->faker->city,
-        ]);
+        $name = $this->faker->company() . ' Tower';
+        $lat = $this->faker->latitude(-0.3, -0.1);
+        $lng = $this->faker->longitude(-78.5, -78.4);
 
         return [
-            'agent_id' => Agent::inRandomOrder()->first()?->id,
-            'user_id' => User::inRandomOrder()->first()?->id,
+            'publisher_id' => User::factory(), 
+            'publisher_type' => 'private_person',
             'name' => $name,
             'slug' => Str::slug($name),
-            'address' => $this->faker->streetAddress,
-            'country' => $this->faker->randomElement(['España', 'México', 'Colombia', 'Argentina', 'Chile']),
-            'state' => $this->faker->state,
-            'city' => $this->faker->city,
-            'district' => $this->faker->citySuffix,
-            'zip_code' => $this->faker->postcode,
-            'lat' => $this->faker->latitude,
-            'lng' => $this->faker->longitude,
-            'year_built' => $this->faker->numberBetween(1950, date('Y')),
-            'floors' => $this->faker->numberBetween(2, 30),
-            'data' => [
-                'amenities' => $this->faker->randomElements([
-                    'Piscina',
-                    'Gimnasio',
-                    'Seguridad 24/7',
-                    'Ascensor',
-                    'Parqueadero',
-                    'Zonas verdes',
-                    'Salón social',
-                    'Juegos infantiles',
-                    'Portería',
-                ], $this->faker->numberBetween(3, 7)),
-                'total_units' => $this->faker->numberBetween(10, 200),
-                'available_units' => $this->faker->numberBetween(1, 20),
-                'construction_company' => $this->faker->company,
-                'management_company' => $this->faker->company,
-                'monthly_maintenance_fee' => $this->faker->numberBetween(50, 500),
-                'description' => $this->faker->paragraph,
-            ],
+            'address' => $this->faker->address(),
+            'country' => 'Ecuador',
+            'state' => 'Pichincha',
+            'city' => 'Quito',
+            'district' => $this->faker->citySuffix(),
+            'zip_code' => $this->faker->postcode(),
+            'lat' => $lat,
+            'lng' => $lng,
+            'location' => DB::raw("ST_GeomFromText('POINT($lng $lat)')"),
+            'year_built' => $this->faker->year(),
+            'floors' => $this->faker->numberBetween(5, 30),
+            'data' => ['amenities' => ['Pool', 'Gym', 'Spa']],
         ];
+    }
+
+    
+    public function configure()
+    {
+        return $this->afterMaking(function (Building $building) {
+            if ($this->faker->boolean()) {
+                $agent = Agent::factory()->create();
+                $building->publisher_id = $agent->user_id; // FK to users
+                $building->publisher_type = 'real_estate_agent';
+            } else {
+                 $user = User::factory()->create();
+                 $building->publisher_id = $user->id;
+                 $building->publisher_type = 'private_person';
+            }
+        });
     }
 }

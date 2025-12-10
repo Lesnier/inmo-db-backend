@@ -19,5 +19,8 @@ Route::get('/', function () {
 
 
 Route::group(['prefix' => 'admin'], function () {
+    Route::get('documentation', [\App\Http\Controllers\DocumentationController::class, 'index'])
+        ->name('voyager.documentation.index')
+        ->middleware('admin.user'); // Ensure strictly admin access
     Voyager::routes();
 });

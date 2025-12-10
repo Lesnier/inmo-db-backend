@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends \TCG\Voyager\Models\User
 {
@@ -45,28 +47,60 @@ class User extends \TCG\Voyager\Models\User
     ];
 
 
-     public function properties(): HasMany
+    // CRM Relationships
+    
+    public function contacts(): HasMany
     {
-        return $this->hasMany(Property::class, 'agent_id');
+        return $this->hasMany(Contact::class, 'owner_id'); // Contacts owned by this user
+    }
+
+    public function deals(): HasMany
+    {
+        return $this->hasMany(Deal::class, 'owner_id');
+    }
+
+    public function chats(): BelongsToMany
+    {
+        return $this->belongsToMany(Chat::class, 'inmo_chat_participants', 'user_id', 'chat_id')
+                    ->withPivot(['last_read_at', 'is_muted'])
+                    ->withTimestamps();
+    }
+
+    public function tickets(): HasMany
+    {
+        return $this->hasMany(Ticket::class, 'owner_id');
+    }
+
+    public function tasksAsAssignee(): HasMany
+    {
+        return $this->hasMany(Task::class, 'assigned_to');
+    }
+    
+    public function tasksCreated(): HasMany
+    {
+        return $this->hasMany(Task::class, 'created_by');
+    }
+
+    public function meetingsHosted(): HasMany
+    {
+        return $this->hasMany(Meeting::class, 'host_id');
+    }
+
+    // Legacy / Real Estate
+    public function properties(): HasMany
+    {
+        // Publisher check is usually done via publisher_id/publisher_type polymorphic, 
+        // but if we kept legacy logical or if properties just point to user_id:
+        return $this->hasMany(Property::class, 'publisher_id')->where('publisher_type', 'user');
     }
 
     public function favorite_properties(): BelongsToMany
     {
         return $this->belongsToMany(
             Property::class,
-            'property_favorites',
+            'inmo_favorites', // Updated table name if changed, or keep 'property_favorites' if that was preserved
             'user_id',
             'property_id'
         );
-    }
-
-    public function property_contacts(): HasMany
-    {
-        return $this->hasMany(PropertyContact::class, 'user_id');
-    }
-
-    public function agent_contacts(): HasMany
-    {
-        return $this->hasMany(PropertyContact::class, 'agent_id');
     }
 }

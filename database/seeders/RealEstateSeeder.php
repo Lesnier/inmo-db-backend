@@ -351,10 +351,10 @@ class RealEstateSeeder extends Seeder
             unset($propertyData['badges'], $propertyData['verified']);
 
             Property::create([
-                'agent_id' => $agent->id,
+                'publisher_id' => $agent->id,
+                'publisher_type' => 'real_estate_agent',
                 'category_id' => $propertyData['category_id'],
                 'operation_type' => 'rent',
-                'type_of_offer' => 'real_estate_agent',
                 'title' => $propertyData['title'],
                 'slug' => \Illuminate\Support\Str::slug($propertyData['title']),
                 'price' => $propertyData['price'],

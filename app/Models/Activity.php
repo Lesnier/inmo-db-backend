@@ -7,18 +7,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Activity extends Model
 {
+    use \Illuminate\Database\Eloquent\Factories\HasFactory;
+    use \App\Traits\HasAssociations;
+
     protected $table = 'inmo_activities';
 
     protected $fillable = [
-        'agent_id',
-        'client_id',
-        'lead_id',
         'type',
-        'title',
-        'notes',
+        'content',
         'scheduled_at',
         'completed_at',
         'status',
+        'created_by',
         'data',
     ];
 
@@ -31,19 +31,9 @@ class Activity extends Model
     ];
 
     // Relationships
-    public function agent(): BelongsTo
+    public function creator(): BelongsTo
     {
-        return $this->belongsTo(Agent::class);
-    }
-
-    public function client(): BelongsTo
-    {
-        return $this->belongsTo(Client::class);
-    }
-
-    public function lead(): BelongsTo
-    {
-        return $this->belongsTo(Lead::class);
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     // Scopes

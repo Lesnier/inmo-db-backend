@@ -7,16 +7,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+use App\Traits\HasPublisher;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 class Property extends Model
 {
+    use HasFactory, HasPublisher, \App\Traits\HasAssociations;
+
     protected $table = 'inmo_properties';
 
     protected $fillable = [
-        'agent_id',
+        'publisher_id',
+        'publisher_type',
         'category_id',
         'building_id',
         'operation_type',
-        'type_of_offer',
         'title',
         'slug',
         'price',
@@ -31,6 +36,7 @@ class Property extends Model
         'street_address',
         'lat',
         'lng',
+        'location',
         'data',
     ];
 
@@ -45,11 +51,6 @@ class Property extends Model
     ];
 
     // Relationships
-    public function agent(): BelongsTo
-    {
-        return $this->belongsTo(Agent::class, 'agent_id');
-    }
-
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class, 'category_id');
@@ -60,15 +61,12 @@ class Property extends Model
         return $this->belongsTo(Building::class, 'building_id');
     }
 
-    public function media(): HasMany
+    public function media()
     {
-        return $this->hasMany(PropertyMedia::class, 'property_id');
+        return $this->morphMany(Media::class, 'model');
     }
 
-    public function contacts(): HasMany
-    {
-        return $this->hasMany(PropertyContact::class, 'property_id');
-    }
+
 
     public function favorites(): BelongsToMany
     {
@@ -81,8 +79,25 @@ class Property extends Model
         return $query->where('status', 'published')->whereNotNull('published_at');
     }
 
-    public function scopeByAgent($query, $agentId)
+    public function scopeWhereWithinBoundingBox($query, $swLat, $swLng, $neLat, $neLng)
     {
-        return $query->where('agent_id', $agentId);
+        return $query->whereBetween('lat', [$swLat, $neLat])
+                     ->whereBetween('lng', [$swLng, $neLng]);
+    }
+
+    public function scopeWhereSpatialBBox($query, $swLat, $swLng, $neLat, $neLng)
+    {
+        // Construct Polygon from BBox (SW -> NW -> NE -> SE -> SW)
+        // Order: Lng Lat
+        // SW: $swLng $swLat
+        // NW: $swLng $neLat
+        // NE: $neLng $neLat
+        // SE: $neLng $swLat
+        // Close: $swLng $swLat
+        
+        $polygon = "POLYGON(($swLng $swLat, $swLng $neLat, $neLng $neLat, $neLng $swLat, $swLng $swLat))";
+        
+        // MBRContains(poly, point) -> efficient usage of SPATIAL index in MySQL
+        return $query->whereRaw("MBRContains(ST_GeomFromText(?), location)", [$polygon]);
     }
 }

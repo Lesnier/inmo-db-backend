@@ -10,13 +10,10 @@ return new class extends Migration {
     {
         Schema::create('inmo_buildings', function (Blueprint $table) {
             $table->id();
-
-            // Owner / administrator of the building
-            $table->unsignedBigInteger('agent_id')->nullable();
-            $table->unsignedBigInteger('user_id')->nullable();
-
-            $table->foreign('agent_id')->references('id')->on('inmo_agents')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
+            
+            // Publisher (User)
+            $table->foreignId('publisher_id')->constrained('users')->onDelete('cascade');
+            $table->string('publisher_type', 50);
 
             // Basic building info
             $table->string('name');
@@ -33,6 +30,12 @@ return new class extends Migration {
             // Map coordinates
             $table->decimal('lat', 10, 7)->nullable();
             $table->decimal('lng', 10, 7)->nullable();
+            
+            if (DB::getDriverName() !== 'sqlite') {
+                $table->point('location')->nullable(); 
+            }
+
+
 
             // Structure
             $table->integer('year_built')->nullable();
@@ -44,8 +47,13 @@ return new class extends Migration {
             $table->timestamps();
 
             // Indexes
-            $table->index(['agent_id', 'user_id']);
+            $table->index(['publisher_id', 'publisher_type']);
             $table->index(['city', 'slug']);
+            $table->index(['country', 'state', 'city']);
+            
+            // if (DB::getDriverName() !== 'sqlite') {
+            //    $table->spatialIndex('location');
+            // }
         });
     }
 

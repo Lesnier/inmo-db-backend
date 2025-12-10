@@ -10,16 +10,20 @@ return new class extends Migration
     {
         Schema::create('inmo_media', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('property_id');
-            $table->string('type', 30)->default('image');
+            
+            // Polymorphic relation
+            // model_type = 'property' | 'building' (según MediaModelType)
+            $table->unsignedBigInteger('model_id');
+            $table->string('model_type', 50);
+
+            $table->string('type', 30)->default('image'); // image, video, doc, plan, 3d_view
             $table->string('url', 1024);
             $table->json('meta')->default(DB::raw('(JSON_OBJECT())'));
             $table->integer('position')->default(0);
             $table->timestamps();
 
-            $table->foreign('property_id')->references('id')->on('inmo_properties')->onDelete('cascade');
-            $table->index('property_id');
-            $table->index(['property_id', 'position']);
+            $table->index(['model_type', 'model_id']);
+            $table->index(['model_type', 'model_id', 'position']);
         });
     }
 

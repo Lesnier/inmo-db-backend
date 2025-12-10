@@ -18,6 +18,9 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
+        \App\Events\PropertyContactCreated::class => [
+            \App\Listeners\StartCrmFlowFromInquiry::class,
+        ],
     ];
 
     /**
@@ -25,7 +28,12 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        \App\Models\Deal::observe(\App\Observers\DealObserver::class);
+        \App\Models\Contact::observe(\App\Observers\ContactObserver::class);
+        \App\Models\Ticket::observe(\App\Observers\TicketObserver::class);
+        \App\Models\Association::observe(\App\Observers\AssociationObserver::class);
+        \App\Models\Property::observe(\App\Observers\PropertyObserver::class);
+        \App\Models\Building::observe(\App\Observers\BuildingObserver::class);
     }
 
     /**

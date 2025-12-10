@@ -1,0 +1,124 @@
+services:
+  # 1. Main Application (PHP-FPM)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: inmodb-app
+    container_name: inmodb_app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+    networks:
+      - inmodb-network
+    depends_on:
+      - db
+      - redis
+
+  # 2. Web Server (Nginx)
+  nginx:
+    image: nginx:alpine
+    container_name: inmodb_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./:/var/www
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - inmodb-network
+    depends_on:
+      - app
+
+  # 3. Database (MySQL)
+  db:
+    image: mysql:8.0
+    container_name: inmodb_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - inmodb-network
+
+  # 4. Redis (Cache, Queues, Reverb)
+  redis:
+    image: redis:alpine
+    container_name: inmodb_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    networks:
+      - inmodb-network
+
+  # 5. Queue Worker
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: inmodb-worker
+    container_name: inmodb_worker
+    restart: unless-stopped
+    working_dir: /var/www
+    command: php artisan queue:work --tries=3
+    volumes:
+      - ./:/var/www
+    networks:
+      - inmodb-network
+    depends_on:
+      - app
+      - redis
+
+  # 6. Reverb (WebSockets)
+  reverb:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: inmodb-reverb
+    container_name: inmodb_reverb
+    restart: unless-stopped
+    working_dir: /var/www
+    command: php artisan reverb:start --host=0.0.0.0 --port=8080
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./:/var/www
+    networks:
+      - inmodb-network
+    depends_on:
+      - app
+      - redis
+
+  # 7. Portainer (Monitoring)
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: inmodb_portainer
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - portainer_data:/data
+    ports:
+      - "9000:9000"
+    networks:
+      - inmodb-network
+
+networks:
+  inmodb-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+  redisdata:
+  portainer_data:

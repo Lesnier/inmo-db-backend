@@ -12,11 +12,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // \App\Models\User::factory(10)->create();
-
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        $this->call(VoyagerDatabaseSeeder::class);
+        $this->call(VoyagerDummyDatabaseSeeder::class);
+        $this->call(DocumentationMenuSeeder::class);
+        $this->call(CrmRoleSeeder::class);
+        $this->call(RealEstateSeeder::class);
+        $this->call(PipelineSeeder::class);
+        $this->call(ExtendedUserSeeder::class); // Adds diverse users and contacts
+        $this->call(CrmExtendedSeeder::class);  // Adds Companies, Deals, Tickets, Activities, etc.
+        $this->call(ChatSeeder::class);         // Adds chats and messages
     }
 }

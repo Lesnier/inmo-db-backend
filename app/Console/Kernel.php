@@ -12,7 +12,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        // For Shared Hosting: Process queues every minute but stop when empty to release process
+        $schedule->command('queue:work --stop-when-empty --tries=3')
+                 ->everyMinute()
+                 ->withoutOverlapping();
     }
 
     /**

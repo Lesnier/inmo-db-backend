@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\Plan;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
 
 class PlanController extends Controller
 {

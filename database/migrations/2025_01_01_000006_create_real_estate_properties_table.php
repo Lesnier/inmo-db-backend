@@ -15,14 +15,15 @@ return new class extends Migration
         Schema::create('inmo_properties', function (Blueprint $table) {
             $table->id();
 
-            // Foreign keys
-            $table->foreignId('agent_id')->nullable()->constrained('inmo_agents')->nullOnDelete();
+            // Publisher (User)
+            $table->foreignId('publisher_id')->constrained('users')->onDelete('cascade');
+            $table->string('publisher_type', 50); // role name (agent, agency, private, etc)
+
             $table->foreignId('category_id')->nullable()->constrained('inmo_categories')->nullOnDelete();
             $table->foreignId('building_id')->nullable()->constrained('inmo_buildings')->nullOnDelete();
 
-            // Tipo de operación y oferta
+            // Tipo de operación
             $table->string('operation_type', 50)->default('sell'); // sell, rent
-            $table->string('type_of_offer', 50)->default('private_person'); // private_person, real_estate_agent
 
             // Datos básicos
             $table->string('title', 255);
@@ -43,22 +44,37 @@ return new class extends Migration
             $table->string('street_address', 255)->nullable();
             $table->decimal('lat', 10, 7)->nullable();
             $table->decimal('lng', 10, 7)->nullable();
+            
+            if (DB::getDriverName() !== 'sqlite') {
+                 $table->point('location')->nullable(); 
+            }
+
+
 
             // Datos adicionales (JSON)
             $table->json('data')->default(DB::raw('(JSON_OBJECT())'));
 
+            // Columnas VIRTUALES GENERADAS (para indexación eficiente)
+            // Se usa json_extract para mayor compatibilidad con MariaDB ver. antigua
+            $table->unsignedTinyInteger('bedrooms')->virtualAs("json_unquote(json_extract(data, '$.general.bedrooms'))")->nullable();
+            $table->unsignedTinyInteger('bathrooms')->virtualAs("json_unquote(json_extract(data, '$.general.bathrooms'))")->nullable();
+
             $table->timestamps();
 
             // Índices básicos
-            $table->index('agent_id');
+            $table->index(['publisher_id', 'publisher_type']);
             $table->index('category_id');
             $table->index('building_id');
             $table->index('status');
             $table->index('published_at');
             $table->index('operation_type');
-            $table->index('type_of_offer');
             $table->index(['country', 'state', 'city']);
             $table->index(['lat', 'lng']);
+            
+            // Spatial Index (MySQL Only)
+            // if (DB::getDriverName() !== 'sqlite') {
+            //    $table->spatialIndex('location');
+            // }
         });
     }
 

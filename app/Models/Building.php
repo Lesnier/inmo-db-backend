@@ -7,15 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+use App\Traits\HasPublisher;
+
 class Building extends Model
 {
-    use HasFactory;
+    use HasFactory, HasPublisher, \App\Traits\HasAssociations;
 
     protected $table = 'inmo_buildings';
 
     protected $fillable = [
-        'agent_id',
-        'user_id',
+        'publisher_id',
+        'publisher_type',
         'name',
         'slug',
         'address',
@@ -26,6 +28,7 @@ class Building extends Model
         'zip_code',
         'lat',
         'lng',
+        'location',
         'year_built',
         'floors',
         'data',
@@ -40,26 +43,24 @@ class Building extends Model
     ];
 
     /**
-     * Agent who owns/manages this building
-     */
-    public function agent(): BelongsTo
-    {
-        return $this->belongsTo(Agent::class, 'agent_id');
-    }
-
-    /**
-     * User who owns this building
-     */
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'user_id');
-    }
-
-    /**
      * Properties in this building
      */
     public function properties(): HasMany
     {
         return $this->hasMany(Property::class, 'building_id');
+    }
+
+    public function media()
+    {
+        return $this->morphMany(Media::class, 'model');
+    }
+    public function agent()
+    {
+        return $this->belongsTo(\App\Models\Agent::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

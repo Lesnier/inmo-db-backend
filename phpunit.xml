@@ -11,6 +11,16 @@
         <testsuite name="Feature">
             <directory>tests/Feature</directory>
         </testsuite>
+        <testsuite name="RealEstate">
+            <directory>tests/Feature/RealEstate</directory>
+        </testsuite>
+        <testsuite name="CRM">
+            <directory>tests/Feature/Crm</directory>
+            <file>tests/Feature/CrmApiTest.php</file>
+        </testsuite>
+        <testsuite name="User">
+             <directory>tests/Feature/User</directory>
+        </testsuite>
     </testsuites>
     <source>
         <include>
@@ -19,7 +29,6 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
-        <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_DRIVER" value="array"/>
         <!-- <env name="DB_CONNECTION" value="sqlite"/> -->
         <!-- <env name="DB_DATABASE" value=":memory:"/> -->
