@@ -33,7 +33,7 @@ class FavoriteTest extends TestCase
                          ->postJson("/api/real-estate/{$property->id}/favorite");
 
         $response->assertStatus(200)
-                 ->assertJson(['favorited' => true]);
+                 ->assertJson(['data' => ['favorited' => true]]);
 
         $this->assertDatabaseHas('inmo_favorites', [
             'user_id' => $user->id,
@@ -45,7 +45,7 @@ class FavoriteTest extends TestCase
                          ->postJson("/api/real-estate/{$property->id}/favorite");
 
         $response->assertStatus(200)
-                 ->assertJson(['favorited' => false]);
+                 ->assertJson(['data' => ['favorited' => false]]);
 
         $this->assertDatabaseMissing('inmo_favorites', [
             'user_id' => $user->id,

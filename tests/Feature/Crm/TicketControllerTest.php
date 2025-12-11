@@ -61,7 +61,7 @@ class TicketControllerTest extends TestCase
         $response = $this->postJson('/api/crm/tickets', $payload);
 
         $response->assertStatus(201);
-        $this->assertMatchesSchema($response->json(), TestSchemas::TICKET);
+        $this->assertMatchesSchema($response->json('data'), TestSchemas::TICKET);
     }
 
     public function test_can_resolve_ticket()

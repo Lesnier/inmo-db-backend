@@ -32,7 +32,7 @@ class SearchTest extends TestCase
 
         // 3. Assertions
         $response->assertStatus(200);
-        $ids = collect($response->json())->pluck('id');
+        $ids = collect($response->json('data'))->pluck('id');
 
         $this->assertTrue($ids->contains($cheap->id), 'Should contain cheap property');
         $this->assertFalse($ids->contains($expensive->id), 'Should NOT contain expensive property');
@@ -56,7 +56,7 @@ class SearchTest extends TestCase
         $response = $this->getJson("/api/real-estate/search?sw_lat=$swLat&sw_lng=$swLng&ne_lat=$neLat&ne_lng=$neLng&zoom=12");
 
         $response->assertStatus(200);
-        $ids = collect($response->json())->pluck('id');
+        $ids = collect($response->json('data'))->pluck('id');
 
         $this->assertTrue($ids->contains($inside->id));
         $this->assertFalse($ids->contains($outside->id));
@@ -92,7 +92,7 @@ class SearchTest extends TestCase
         $response = $this->getJson("/api/real-estate/search?sw_lat=$swLat&sw_lng=$swLng&ne_lat=$neLat&ne_lng=$neLng&zoom=12&max_price=100000");
 
         $response->assertStatus(200);
-        $ids = collect($response->json())->pluck('id');
+        $ids = collect($response->json('data'))->pluck('id');
 
         $this->assertTrue($ids->contains($valid->id), 'Valid property must be returned');
         $this->assertFalse($ids->contains($expensiveInside->id), 'Expensive property must be filtered out');
@@ -120,7 +120,7 @@ class SearchTest extends TestCase
 
         $response1->assertStatus(200);
         $sizeDb = strlen($response1->content());
-        $countDb = count($response1->json());
+        $countDb = count($response1->json('data'));
 
         // 3. Second Hit (Cache)
         $startCache = microtime(true);

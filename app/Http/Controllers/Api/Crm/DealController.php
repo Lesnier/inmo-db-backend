@@ -65,7 +65,7 @@ class DealController extends Controller
 
             // Optional filters
             if ($request->has('pipeline_id')) {
-                $query->where('pipeline_id', $request->pipeline_id);
+                $query->where('pipeline_id', $request->input('pipeline_id', 1));
             }
 
             return $query->paginate(20);
@@ -169,6 +169,7 @@ class DealController extends Controller
             'pipeline_id' => 'required|exists:inmo_pipelines,id',
             'stage_id' => 'required|exists:inmo_pipeline_stages,id',
             'status' => 'nullable|in:open,won,lost,archived',
+            'associations' => 'nullable|array',
         ]);
 
         $deal = Deal::create(array_merge($validated, [
@@ -177,7 +178,20 @@ class DealController extends Controller
             // 'currency' => default?
         ]));
 
-        return response()->json($deal, 201);
+        if (!empty($validated['associations'])) {
+            foreach ($validated['associations'] as $assoc) {
+                if (isset($assoc['type'], $assoc['id'])) {
+                    \App\Models\Association::create([
+                        'object_type_a' => 'deal',
+                        'object_id_a' => $deal->id,
+                        'object_type_b' => \Illuminate\Support\Str::singular($assoc['type']),
+                        'object_id_b' => $assoc['id'],
+                    ]);
+                }
+            }
+        }
+
+        return response()->json(['data' => $deal], 201);
     }
 
     /**
@@ -198,8 +212,10 @@ class DealController extends Controller
      *     @OA\Response(response=200, description="Updated")
      * )
      */
-    public function update(Request $request, Deal $deal)
+    public function update(Request $request, $id)
     {
+        $deal = Deal::findOrFail($id);
+        
         // Policy check usually handled by middleware or manually
         if ($deal->owner_id !== Auth::id() && !Auth::user()->hasRole('admin')) {
              // abort(403); 
@@ -217,7 +233,7 @@ class DealController extends Controller
 
         $deal->update($validated);
 
-        return response()->json($deal);
+        return response()->json(['data' => $deal]);
     }
 
     /**
@@ -238,7 +254,7 @@ class DealController extends Controller
     {
         $request->validate(['stage_id' => 'required|exists:inmo_pipeline_stages,id']);
         $deal->update(['stage_id' => $request->stage_id]);
-        return response()->json(['message' => 'Deal moved to new stage', 'deal' => $deal]);
+        return response()->json(['message' => 'Deal moved to new stage', 'data' => $deal]);
     }
 
     /**
@@ -264,7 +280,7 @@ class DealController extends Controller
         }
         
         $deal->update($updateData);
-        return response()->json(['message' => 'Deal marked as Won', 'deal' => $deal]);
+        return response()->json(['message' => 'Deal marked as Won', 'data' => $deal]);
     }
 
     /**
@@ -299,7 +315,7 @@ class DealController extends Controller
         }
         
         $deal->update($updateData);
-        return response()->json(['message' => 'Deal marked as Lost', 'deal' => $deal]);
+        return response()->json(['message' => 'Deal marked as Lost', 'data' => $deal]);
     }
 
     /**
@@ -314,11 +330,11 @@ class DealController extends Controller
      */
     public function analytics(Deal $deal)
     {
-        return response()->json([
+        return response()->json(['data' => [
             'days_open' => $deal->created_at->diffInDays(now()),
             'stage_history' => [], // Stub: implementation would require auditing/history table
             'activities_count' => $deal->getAssociated(\App\Models\Activity::class)->count()
-        ]);
+        ]]);
     }
 
     /**

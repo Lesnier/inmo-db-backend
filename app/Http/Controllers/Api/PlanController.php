@@ -13,13 +13,13 @@ class PlanController extends Controller
     public function index(): JsonResponse
     {
         $plans = Plan::all();
-        return response()->json($plans);
+        return response()->json(['data' => $plans]);
     }
 
     // GET /api/real-estate/plans/{id} (public)
     public function show(Plan $plan): JsonResponse
     {
-        return response()->json($plan);
+        return response()->json(['data' => $plan]);
     }
 
     // POST /api/real-estate/plans (admin)
@@ -33,7 +33,7 @@ class PlanController extends Controller
         ]);
 
         $plan = Plan::create($validated);
-        return response()->json($plan, 201);
+        return response()->json(['data' => $plan], 201);
     }
 
     // PUT /api/real-estate/plans/{id} (admin)
@@ -47,7 +47,7 @@ class PlanController extends Controller
         ]);
 
         $plan->update($validated);
-        return response()->json($plan);
+        return response()->json(['data' => $plan]);
     }
 
     // DELETE /api/real-estate/plans/{id} (admin)

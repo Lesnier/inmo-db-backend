@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Plan extends Model
 {
+    use \Illuminate\Database\Eloquent\Factories\HasFactory;
     protected $table = 'inmo_plans';
 
     protected $fillable = [
@@ -17,7 +18,7 @@ class Plan extends Model
 
     protected $casts = [
         'data' => 'json',
-        'price' => 'decimal:2',
+        'price' => 'float',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

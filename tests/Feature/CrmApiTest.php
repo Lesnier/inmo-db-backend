@@ -83,7 +83,7 @@ class CrmApiTest extends TestCase
         $response = $this->actingAs($user)->postJson('/api/crm/deals', $data);
 
         $response->assertStatus(201)
-                 ->assertJsonPath('title', 'Big Deal')
-                 ->assertJsonPath('status', 'open');
+                 ->assertJsonPath('data.title', 'Big Deal')
+                 ->assertJsonPath('data.status', 'open');
     }
 }

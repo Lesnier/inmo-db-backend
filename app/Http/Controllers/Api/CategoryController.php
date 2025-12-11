@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Category;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class CategoryController extends Controller
@@ -12,13 +13,13 @@ class CategoryController extends Controller
     public function index(): JsonResponse
     {
         $categories = Category::all();
-        return response()->json($categories);
+        return response()->json(['data' => $categories]);
     }
 
     // GET /api/real-estate/categories/{id} (public)
     public function show(Category $category): JsonResponse
     {
-        return response()->json($category);
+        return response()->json(['data' => $category]);
     }
 
     // POST /api/real-estate/categories (admin)
@@ -31,7 +32,7 @@ class CategoryController extends Controller
         ]);
 
         $category = Category::create($validated);
-        return response()->json($category, 201);
+        return response()->json(['data' => $category], 201);
     }
 
     // PUT /api/real-estate/categories/{id} (admin)
@@ -44,7 +45,7 @@ class CategoryController extends Controller
         ]);
 
         $category->update($validated);
-        return response()->json($category);
+        return response()->json(['data' => $category]);
     }
 
     // DELETE /api/real-estate/categories/{id} (admin)

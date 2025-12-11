@@ -51,9 +51,13 @@ class Building extends Model
         'data',
     ];
 
+    protected $hidden = [
+        'location',
+    ];
+
     protected $casts = [
-        'lat' => 'decimal:7',
-        'lng' => 'decimal:7',
+        'lat' => 'float',
+        'lng' => 'float',
         'year_built' => 'integer',
         'floors' => 'integer',
         'data' => 'array',

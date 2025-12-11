@@ -5,8 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Traits\HasAssociations;
+
 class Media extends Model
 {
+    use HasFactory, HasAssociations;
+
     protected $table = 'inmo_media';
 
     protected $fillable = [

@@ -74,7 +74,7 @@ class PropertyController extends Controller
             return $this->transformProperty($property);
         });
 
-        return response()->json($data);
+        return response()->json(['data' => $data]);
     }
 
     // GET /api/real-estate (public)
@@ -202,18 +202,29 @@ class PropertyController extends Controller
     public function myProperties(Request $request): JsonResponse
     {
         // "My" properties = Properties where I am the publisher
-        $query = Property::where('publisher_id', auth()->id())
-                         ->with(['category', 'media', 'building']);
-
-        if ($request->has('status')) {
-            $query->where('status', $request->status);
-        }
-
+        $userId = auth()->id();
+        $page = $request->get('page', 1);
         $perPage = (int) $request->get('per_page', 10);
-        $properties = $query->latest('updated_at')->paginate($perPage);
+        $status = $request->get('status', 'all');
 
-         $properties->getCollection()->transform(function ($property) {
-            return $this->transformProperty($property);
+        // Generate a unique cache key for this specific request
+        $cacheKey = "user_{$userId}_properties_p{$page}_s{$status}_pp{$perPage}";
+
+        $properties = \Illuminate\Support\Facades\Cache::tags(["user_{$userId}_properties"])->remember($cacheKey, now()->addMinutes(10), function () use ($userId, $request, $perPage) {
+            $query = Property::where('publisher_id', $userId)
+                             ->with(['category', 'media', 'building']);
+
+            if ($request->has('status')) {
+                $query->where('status', $request->status);
+            }
+
+            $currentProperties = $query->latest('updated_at')->paginate($perPage);
+
+             $currentProperties->getCollection()->transform(function ($property) {
+                return $this->transformProperty($property);
+            });
+            
+            return $currentProperties;
         });
 
         return response()->json($properties);
@@ -262,7 +273,7 @@ class PropertyController extends Controller
             return $property;
         });
 
-        return response()->json($data);
+        return response()->json(['data' => $data]);
     }
 
 
@@ -297,6 +308,7 @@ class PropertyController extends Controller
             'lat' => 'nullable|numeric',
             'lng' => 'nullable|numeric',
             'data' => 'nullable|array',
+            'associations' => 'nullable|array',
         ]);
 
         $data = $validated['data'] ?? [];
@@ -321,7 +333,28 @@ class PropertyController extends Controller
             'status' => 'draft',
         ]);
 
-        return response()->json($property, 201);
+        if (!empty($validated['associations'])) {
+            foreach ($validated['associations'] as $assoc) {
+                if (isset($assoc['type'], $assoc['id'])) {
+                    \App\Models\Association::create([
+                        'object_type_a' => 'property',
+                        'object_id_a' => $property->id,
+                        'object_type_b' => \Illuminate\Support\Str::singular($assoc['type']),
+                        'object_id_b' => $assoc['id'],
+                    ]);
+                }
+            }
+        }
+
+        return response()->json(['data' => $property], 201);
+    }
+
+    /**
+     * Helper to clear user property cache
+     */
+    protected function clearUserPropertyCache($userId)
+    {
+        \Illuminate\Support\Facades\Cache::tags(["user_{$userId}_properties"])->flush();
     }
 
     // PUT /api/real-estate/{id} (auth: owner or admin)
@@ -343,9 +376,13 @@ class PropertyController extends Controller
      *     @OA\Response(response=200, description="Updated")
      * )
      */
+    // PUT /api/real-estate/{id} (auth: owner or admin)
+
     public function update(Request $request, Property $property): JsonResponse
     {
         $this->authorize('update', $property);
+
+        // ... validation ...
 
         $validated = $request->validate([
             'title' => 'sometimes|string|max:255',
@@ -361,24 +398,25 @@ class PropertyController extends Controller
 
         $property->update($validated);
 
-        return response()->json($property);
+        // Clear cache for the publisher
+        if ($property->publisher_type === \App\Models\User::class) {
+            $this->clearUserPropertyCache($property->publisher_id);
+        }
+
+        return response()->json(['data' => $property]);
     }
 
-    // DELETE /api/real-estate/{id} (auth: owner or admin)
-    /**
-     * @OA\Delete(
-     *     path="/api/real-estate/{id}",
-     *     summary="Delete Property",
-     *     tags={"Real Estate Properties"},
-     *     security={{"sanctum":{}}},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\Response(response=200, description="Deleted")
-     * )
-     */
+    // ... (destroy method)
+
     public function destroy(Property $property): JsonResponse
     {
         $this->authorize('delete', $property);
         $property->delete();
+
+        // Clear cache
+        if ($property->publisher_type === \App\Models\User::class) {
+            $this->clearUserPropertyCache($property->publisher_id);
+        }
 
         return response()->json(['message' => 'Property deleted']);
     }
@@ -527,9 +565,9 @@ class PropertyController extends Controller
         $user = auth()->user();
         $isFavorited = $user->favorite_properties()->toggle($property->id);
 
-        return response()->json([
+        return response()->json(['data' => [
             'favorited' => isset($isFavorited['attached']) && count($isFavorited['attached']) > 0,
-        ]);
+        ]]);
     }
 
     // POST /api/real-estate/{id}/duplicate (auth: owner or admin)
@@ -555,7 +593,7 @@ class PropertyController extends Controller
 
         // Duplicate relationships if needed (here just simple cloning)
         
-        return response()->json($newProperty, 201);
+        return response()->json(['data' => $newProperty], 201);
     }
 
     // PUT /api/real-estate/{id}/archive (auth: owner or admin)
@@ -599,11 +637,11 @@ class PropertyController extends Controller
             $q->where('object_type_b', 'property')->where('object_id_b', $property->id);
         })->count();
 
-        return response()->json([
+        return response()->json(['data' => [
             'views' => rand(10, 500), // Stub
             'leads' => $leadsCount,
             'favorites' => $property->favorites()->count(),
             'days_on_market' => $property->published_at ? now()->diffInDays($property->published_at) : 0,
-        ]);
+        ]]);
     }
 }

@@ -41,7 +41,9 @@ class CrmScenariosTest extends TestCase
         $response = $this->actingAs($user)
                          ->putJson("/api/crm/deals/{$dealId}", ['stage_id' => $stage2->id]);
         
-        $response->assertStatus(200);
+        $response->assertStatus(200)
+                 ->assertJsonPath('data.stage_id', $stage2->id);
+        
         $this->assertDatabaseHas('inmo_deals', ['id' => $dealId, 'stage_id' => $stage2->id]);
     }
 

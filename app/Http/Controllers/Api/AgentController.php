@@ -35,7 +35,7 @@ class AgentController extends Controller
             return response()->json(['message' => 'Agent profile not found'], 404);
         }
 
-        return response()->json($agent);
+        return response()->json(['data' => $agent]);
     }
 
     /**
@@ -78,7 +78,7 @@ class AgentController extends Controller
             $agent->update($validated);
         }
 
-        return response()->json($agent->load(['user', 'plan']));
+        return response()->json(['data' => $agent->load(['user', 'plan'])]);
     }
 
     /**
@@ -122,6 +122,6 @@ class AgentController extends Controller
             'won_deals' => $agent->deals()->where('status', 'won')->count(),
         ];
 
-        return response()->json($stats);
+        return response()->json(['data' => $stats]);
     }
 }

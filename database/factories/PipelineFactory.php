@@ -14,6 +14,7 @@ class PipelineFactory extends Factory
         return [
             'name' => 'Default Pipeline',
             'entity_type' => 'deal',
+            'user_id' => null, // Global by default
         ];
     }
 }

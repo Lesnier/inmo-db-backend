@@ -19,9 +19,9 @@ class CategoryControllerTest extends TestCase
         $response = $this->getJson('/api/real-estate/categories');
 
         $response->assertStatus(200);
-        $this->assertIsArray($response->json());
+        $this->assertIsArray($response->json('data'));
         // Verify array of categories
-        $this->assertMatchesSchema($response->json(), [
+        $this->assertMatchesSchema($response->json('data'), [
             TestSchemas::CATEGORY // List check
         ]);
     }

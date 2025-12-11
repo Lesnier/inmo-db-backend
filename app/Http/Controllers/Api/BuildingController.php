@@ -85,6 +85,46 @@ class BuildingController extends Controller
     }
 
     /**
+     * @OA\Get(
+     *     path="/api/real-estate/buildings/mine",
+     *     summary="List My Buildings",
+     *     tags={"Real Estate Buildings"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(name="page", in="query", @OA\Schema(type="integer")),
+     *     @OA\Parameter(name="search", in="query", @OA\Schema(type="string")),
+     *     @OA\Response(response=200, description="List of my buildings")
+     * )
+     */
+    public function myBuildings(Request $request): JsonResponse
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        $query = Building::query()->with(['publisher']);
+
+        // Filter by publisher (user_id)
+        $query->where('publisher_id', $user->id);
+        
+        // Search by name
+        if ($request->has('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        // Order by
+        $orderBy = $request->input('order_by', 'created_at');
+        $orderDir = $request->input('order_dir', 'desc');
+        $query->orderBy($orderBy, $orderDir);
+
+        // Pagination
+        $perPage = $request->input('per_page', 15);
+        $buildings = $query->paginate($perPage);
+
+        return response()->json($buildings);
+    }
+
+    /**
      * GET /api/buildings/{id}
      * Get a single building with relationships
      */
@@ -101,7 +141,7 @@ class BuildingController extends Controller
     {
         $building = Building::with(['publisher', 'properties'])->findOrFail($id);
 
-        return response()->json($building);
+        return response()->json(['data' => $building]);
     }
 
     /**
@@ -166,8 +206,7 @@ class BuildingController extends Controller
         ]));
 
         return response()->json([
-            'success' => true,
-            'building' => $building->load(['publisher']),
+            'data' => $building->load(['publisher']),
         ], 201);
     }
 
@@ -218,8 +257,7 @@ class BuildingController extends Controller
         $building->update($validated);
 
         return response()->json([
-            'success' => true,
-            'building' => $building->load(['publisher']),
+            'data' => $building->load(['publisher']),
         ]);
     }
 
@@ -288,13 +326,13 @@ class BuildingController extends Controller
         // Calculate estimated value
         $totalValue = \App\Models\Property::where('building_id', $id)->sum('price');
         
-        return response()->json([
+        return response()->json(['data' => [
             'total_units' => $totalUnits,
             'available_units' => $availableUnits,
             'sold_units' => $soldUnits,
             'occupancy_rate' => round($occupancyRate, 2),
             'total_valuation' => $totalValue,
             'average_price' => $totalUnits > 0 ? round($totalValue / $totalUnits, 2) : 0
-        ]);
+        ]]);
     }
 }

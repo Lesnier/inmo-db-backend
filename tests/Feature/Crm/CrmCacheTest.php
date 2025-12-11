@@ -78,7 +78,13 @@ class CrmCacheTest extends TestCase
         $response->assertStatus(200);
 
         // EXPERIMENT: Manually call observer to mimic event dispatch which is flaky in array driver test env
-        (new \App\Observers\DealObserver)->saved($deal);
+        // User requested trace info:
+        // dump("Cache Key Expected: " . $cacheKey);
+        // dump("Cache Has Key Before Invalidation: " . (Cache::tags(["crm_deal_{$deal->id}"])->has($cacheKey) ? 'YES' : 'NO'));
+        
+        (new \App\Observers\DealObserver)->updated($deal);
+
+        // dump("Cache Has Key After Invalidation: " . (Cache::tags(["crm_deal_{$deal->id}"])->has($cacheKey) ? 'YES' : 'NO'));
         
         // Assert it's gone
         $this->assertFalse(Cache::tags(["crm_deal_{$deal->id}"])->has($cacheKey), "Cache was not invalidated");

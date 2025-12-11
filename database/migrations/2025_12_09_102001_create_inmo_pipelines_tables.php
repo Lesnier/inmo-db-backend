@@ -14,9 +14,12 @@ return new class extends Migration
         Schema::create('inmo_pipelines', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->enum('entity_type', ['deal', 'ticket'])->default('deal');           $table->timestamps();
+            $table->enum('entity_type', ['deal', 'ticket'])->default('deal');
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
+            $table->timestamps();
 
             $table->index('entity_type');
+            $table->index('user_id');
         });
 
         Schema::create('inmo_pipeline_stages', function (Blueprint $table) {

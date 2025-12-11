@@ -17,7 +17,12 @@ class ChatController extends Controller
      *      path="/api/chat/rooms",
      *      tags={"Chat"},
      *      summary="List user's chat rooms",
-     *      @OA\Response(response=200, description="List of chats")
+     *      security={{"sanctum":{}}},
+     *      @OA\Response(
+     *          response=200, 
+     *          description="List of chats",
+     *          @OA\JsonContent(type="array", @OA\Items(type="object"))
+     *      )
      * )
      */
     public function index()
@@ -45,6 +50,7 @@ class ChatController extends Controller
      *      path="/api/chat/rooms",
      *      tags={"Chat"},
      *      summary="Create or get existing private chat",
+     *      security={{"sanctum":{}}},
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
@@ -53,7 +59,7 @@ class ChatController extends Controller
      *              @OA\Property(property="subject", type="string", example="Project A")
      *          )
      *      ),
-     *      @OA\Response(response=201, description="Chat created")
+     *      @OA\Response(response=201, description="Chat created", @OA\JsonContent(type="object"))
      * )
      */
     public function store(Request $request)
@@ -92,8 +98,13 @@ class ChatController extends Controller
      *      path="/api/chat/rooms/{id}/messages",
      *      tags={"Chat"},
      *      summary="Get messages for a room",
+     *      security={{"sanctum":{}}},
      *      @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *      @OA\Response(response=200, description="List of messages")
+     *      @OA\Response(
+     *          response=200, 
+     *          description="List of messages",
+     *          @OA\JsonContent(type="array", @OA\Items(type="object"))
+     *      )
      * )
      */
     public function messages($id)
@@ -119,6 +130,7 @@ class ChatController extends Controller
      *      path="/api/chat/rooms/{id}/messages",
      *      tags={"Chat"},
      *      summary="Send a message",
+     *      security={{"sanctum":{}}},
      *      @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
      *      @OA\RequestBody(
      *          required=true,
@@ -127,7 +139,11 @@ class ChatController extends Controller
      *              @OA\Property(property="content", type="string", example="Hello world")
      *          )
      *      ),
-     *      @OA\Response(response=201, description="Message sent")
+     *      @OA\Response(
+     *          response=201, 
+     *          description="Message sent",
+     *          @OA\JsonContent(type="object")
+     *      )
      * )
      */
     public function sendMessage(Request $request, $id)

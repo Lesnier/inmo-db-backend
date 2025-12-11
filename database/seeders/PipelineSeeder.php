@@ -10,7 +10,7 @@ class PipelineSeeder extends Seeder
     public function run()
     {
         // Sales Pipeline
-        $sales = Pipeline::create(['name' => 'Sales Pipeline', 'entity_type' => 'deal']);
+        $sales = Pipeline::create(['name' => 'Sales Pipeline', 'entity_type' => 'deal', 'user_id' => null]);
         $sales->stages()->createMany([
             ['name' => 'New Lead', 'position' => 0, 'probability' => 0],
             ['name' => 'Contacted', 'position' => 1, 'probability' => 10],
@@ -22,7 +22,7 @@ class PipelineSeeder extends Seeder
         ]);
 
         // Support Pipeline (Tickets)
-        $support = Pipeline::create(['name' => 'Support Pipeline', 'entity_type' => 'ticket']);
+        $support = Pipeline::create(['name' => 'Support Pipeline', 'entity_type' => 'ticket', 'user_id' => null]);
         $support->stages()->createMany([
             ['name' => 'New Ticket', 'position' => 0],
             ['name' => 'In Progress', 'position' => 1],
@@ -32,7 +32,7 @@ class PipelineSeeder extends Seeder
         ]);
         
         // Requirement Pipeline (Tickets)
-        $req = Pipeline::create(['name' => 'Requirements Pipeline', 'entity_type' => 'ticket']);
+        $req = Pipeline::create(['name' => 'Requirements Pipeline', 'entity_type' => 'ticket', 'user_id' => null]);
         $req->stages()->createMany([
             ['name' => 'New Request', 'position' => 0],
             ['name' => 'Searching', 'position' => 1],

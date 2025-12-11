@@ -64,6 +64,6 @@ class DealControllerTest extends TestCase
         $response = $this->postJson('/api/crm/deals', $payload);
 
         $response->assertStatus(201);
-        $this->assertMatchesSchema($response->json(), TestSchemas::DEAL);
+        $this->assertMatchesSchema($response->json('data'), TestSchemas::DEAL);
     }
 }

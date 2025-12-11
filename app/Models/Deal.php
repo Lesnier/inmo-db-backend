@@ -42,7 +42,7 @@ class Deal extends Model
 
     protected $casts = [
         'data' => 'array',
-        'amount' => 'decimal:2',
+        'amount' => 'float',
         'expected_close_date' => 'date',
     ];
 

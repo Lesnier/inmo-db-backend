@@ -28,9 +28,8 @@ class MediaFactory extends Factory
         }
 
         return [
-            'property_id' => null,
-            'building_id' => null,
-            'unit_id' => null,
+            'model_id' => 0,
+            'model_type' => 'library',
             'type' => $type,
             'url' => $url,
             'meta' => ['description' => $this->faker->sentence()],

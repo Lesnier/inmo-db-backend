@@ -71,17 +71,20 @@ class AgentAnalyticsController extends Controller
         // Sales Cycle Length (Avg days from created to won/lost)
         // For accurate "Speed of Sale", usually utilize Won deals only, or both.
         $cycleQuery = clone $query;
-        $avgCycle = $cycleQuery->whereIn('status', ['won', 'lost']) // Closed deals
-            ->selectRaw('AVG(DATEDIFF(updated_at, created_at)) as days')
-            ->value('days');
+        $closedDeals = $cycleQuery->whereIn('status', ['won', 'lost'])
+            ->get(['created_at', 'updated_at']);
 
-        return response()->json([
+        $avgCycle = $closedDeals->isNotEmpty() 
+            ? $closedDeals->avg(fn($deal) => $deal->updated_at->diffInDays($deal->created_at)) 
+            : 0;
+
+        return response()->json(['data' => [
             'pipeline_volume' => $volume,
             'pipeline_value' => $value,
             'avg_deal_size' => $avgDealSize,
             'conversion_rate_percentage' => round($conversionRate, 2),
             'sales_cycle_length_days' => round($avgCycle ?? 0, 1)
-        ]);
+        ]]);
     }
 
     /**
@@ -160,10 +163,10 @@ class AgentAnalyticsController extends Controller
             ];
         });
         
-        return response()->json([
+        return response()->json(['data' => [
             'funnel' => $funnel,
             'total_active_value' => $dealStats->sum('value')
-        ]);
+        ]]);
     }
 
     /**
@@ -210,13 +213,13 @@ class AgentAnalyticsController extends Controller
         
         $coverageRatio = $targetRevenue > 0 ? ($totalPipelineValue / $targetRevenue) : 0;
 
-        return response()->json([
+        return response()->json(['data' => [
             'forecasted_revenue' => $forecastedRevenue,
             'total_pipeline_value' => $totalPipelineValue,
             'target_revenue' => $targetRevenue,
             'pipeline_coverage_ratio' => round($coverageRatio, 2),
             'deal_count' => $deals->count()
-        ]);
+        ]]);
     }
 
     /**
@@ -255,11 +258,11 @@ class AgentAnalyticsController extends Controller
         // Assuming Contact has 'source' field.
         // $referrals = Contact::where('owner_id', $agentId)->where('source', 'referral')->count();
         
-        return response()->json([
+        return response()->json(['data' => [
             'won_deals_count' => $wonDeals,
             'total_revenue' => $revenue,
             'activities_completed' => $activities,
             // 'referral_count' => $referrals
-        ]);
+        ]]);
     }
 }

@@ -31,10 +31,17 @@ class PipelineController extends Controller
      */
     public function index()
     {
-        $pipelines = Pipeline::with(['stages' => function($q) {
-            $q->orderBy('position', 'asc');
-        }])->get();
-        return response()->json($pipelines);
+        $userId = auth()->id();
+        $pipelines = Pipeline::where(function($query) use ($userId) {
+                $query->where('user_id', $userId)
+                      ->orWhereNull('user_id');
+            })
+            ->with(['stages' => function($q) {
+                $q->orderBy('position', 'asc');
+            }])
+            ->get();
+            
+        return response()->json(['data' => $pipelines]);
     }
 
     /**
@@ -50,8 +57,9 @@ class PipelineController extends Controller
      *             @OA\Property(property="name", type="string", example="Sales Pipeline"),
      *             @OA\Property(property="entity_type", type="string", enum={"deal","ticket"}, example="deal"),
      *             @OA\Property(property="stages", type="array", @OA\Items(
-     *                 @OA\Property(property="name", type="string", example="New Lead"),
-     *                 @OA\Property(property="probability", type="integer", example=10)
+     *                  @OA\Property(property="name", type="string", example="New Lead"),
+     *                  @OA\Property(property="probability", type="integer", example=10),
+     *                  @OA\Property(property="position", type="integer", example=0)
      *             ))
      *         )
      *     ),
@@ -72,7 +80,8 @@ class PipelineController extends Controller
         try {
             $pipeline = Pipeline::create([
                 'name' => $validated['name'],
-                'entity_type' => $validated['entity_type']
+                'entity_type' => $validated['entity_type'],
+                'user_id' => auth()->id() // Assigned to current user
             ]);
 
             if (!empty($validated['stages'])) {
@@ -85,7 +94,7 @@ class PipelineController extends Controller
                 }
             }
             DB::commit();
-            return response()->json($pipeline->load('stages'), 201);
+            return response()->json(['data' => $pipeline->load('stages')], 201);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['message' => 'Error creating pipeline', 'error' => $e->getMessage()], 500);
@@ -107,7 +116,7 @@ class PipelineController extends Controller
         $pipeline = Pipeline::with(['stages' => function($q) {
             $q->orderBy('position', 'asc');
         }])->findOrFail($id);
-        return response()->json($pipeline);
+        return response()->json(['data' => $pipeline]);
     }
 
     /**
@@ -134,6 +143,16 @@ class PipelineController extends Controller
     public function update(Request $request, $id)
     {
         $pipeline = Pipeline::findOrFail($id);
+
+        // Security Check: Only Owner or Global Admin (if we had roles) can edit
+        // For now: Global pipelines (user_id=null) can only be edited by...? Let's say anyone for now or restrict?
+        // Logic: If I am the owner, I can edit. If it's global, maybe simple protection?
+        // Refined Logic (User Request): "Mis pipelines O los globales". Usually global are admin only.
+        // Assuming strict ownership: only if user_id == auth()->id()
+        
+        if ($pipeline->user_id && $pipeline->user_id !== auth()->id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
         
         $validated = $request->validate([
             'name' => 'sometimes|string',
@@ -151,11 +170,6 @@ class PipelineController extends Controller
             }
 
             if (isset($validated['stages'])) {
-                // Keep track of processed IDs to delete removed stages if needed?
-                // For simplicity, we'll update or create. Deletion strictly via separate endpoint might be safer,
-                // but usually syncing is preferred. 
-                // Let's implement upsert logic.
-                
                 foreach ($validated['stages'] as $stageData) {
                     if (isset($stageData['id'])) {
                         $stage = PipelineStage::find($stageData['id']);
@@ -168,7 +182,7 @@ class PipelineController extends Controller
                 }
             }
             DB::commit();
-            return response()->json($pipeline->load('stages'));
+            return response()->json(['data' => $pipeline->load('stages')]);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['message' => 'Error updating pipeline'], 500);
@@ -188,10 +202,12 @@ class PipelineController extends Controller
     public function destroy($id)
     {
         $pipeline = Pipeline::findOrFail($id);
-        // Constraint: Can't delete if Deals exist?
-        // Check manually or rely on foreign key (usually cascade or restrict)
-        // Ideally should check.
         
+        if ($pipeline->user_id && $pipeline->user_id !== auth()->id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        // Constraint: Can't delete if Deals exist?
         $hasDeals = \App\Models\Deal::where('pipeline_id', $pipeline->id)->exists();
         $hasTickets = \App\Models\Ticket::where('pipeline_id', $pipeline->id)->exists();
         

@@ -30,7 +30,7 @@ class PropertyTest extends TestCase
         $response = $this->getJson("/api/real-estate/{$property->id}");
 
         $response->assertStatus(200)
-                 ->assertJsonPath('id', $property->id);
+                 ->assertJsonPath('data.id', $property->id);
     }
 
     public function test_agent_can_create_property()

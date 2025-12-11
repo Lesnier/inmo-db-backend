@@ -137,7 +137,11 @@ class TicketController extends Controller
      *             @OA\Property(property="description", type="string", example="Client needs..."),
      *             @OA\Property(property="pipeline_id", type="integer", example=1),
      *             @OA\Property(property="stage_id", type="integer", example=2),
-     *             @OA\Property(property="priority", type="string", enum={"low","medium","high"}, example="medium")
+     *             @OA\Property(property="priority", type="string", enum={"low","medium","high"}, example="medium"),
+     *             @OA\Property(property="associations", type="array", @OA\Items(
+     *                  @OA\Property(property="type", type="string", example="contacts"),
+     *                  @OA\Property(property="id", type="integer", example=1)
+     *             ))
      *         )
      *     ),
      *     @OA\Response(response=201, description="Ticket created successfully"),
@@ -151,14 +155,28 @@ class TicketController extends Controller
             'description' => 'nullable|string',
             'pipeline_id' => 'required|exists:inmo_pipelines,id',
             'stage_id' => 'required|exists:inmo_pipeline_stages,id',
-            'priority' => 'nullable|string'
+            'priority' => 'nullable|string',
+            'associations' => 'nullable|array',
         ]);
 
         $ticket = Ticket::create(array_merge($validated, [
             'owner_id' => Auth::id(),
         ]));
 
-        return response()->json($ticket, 201);
+        if (!empty($validated['associations'])) {
+            foreach ($validated['associations'] as $assoc) {
+                if (isset($assoc['type'], $assoc['id'])) {
+                    \App\Models\Association::create([
+                        'object_type_a' => 'ticket',
+                        'object_id_a' => $ticket->id,
+                        'object_type_b' => \Illuminate\Support\Str::singular($assoc['type']),
+                        'object_id_b' => $assoc['id'],
+                    ]);
+                }
+            }
+        }
+
+        return response()->json(['data' => $ticket], 201);
     }
 
     /**
@@ -193,7 +211,7 @@ class TicketController extends Controller
         ]);
 
         $ticket->update($validated);
-        return response()->json($ticket);
+        return response()->json(['data' => $ticket]);
     }
 
     /**
@@ -231,7 +249,7 @@ class TicketController extends Controller
         $request->validate(['owner_id' => 'required|exists:users,id']);
         $ticket = Ticket::findOrFail($id);
         $ticket->update(['owner_id' => $request->owner_id]);
-        return response()->json(['message' => 'Ticket assigned successfully']);
+        return response()->json(['message' => 'Ticket assigned successfully', 'data' => $ticket]);
     }
 
     /**
@@ -265,7 +283,7 @@ class TicketController extends Controller
         }
 
         $ticket->update($updateData);
-        return response()->json(['message' => 'Ticket resolved', 'ticket' => $ticket]);
+        return response()->json(['message' => 'Ticket resolved', 'data' => $ticket]);
     }
 
     /**
@@ -281,9 +299,9 @@ class TicketController extends Controller
     public function analytics($id)
     {
         $ticket = Ticket::findOrFail($id);
-        return response()->json([
+        return response()->json(['data' => [
              'days_open' => $ticket->created_at->diffInDays(now()),
              'activities_count' => $ticket->getAssociated(\App\Models\Activity::class)->count(),
-        ]);
+        ]]);
     }
 }

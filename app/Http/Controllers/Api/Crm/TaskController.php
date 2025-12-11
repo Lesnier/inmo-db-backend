@@ -89,6 +89,7 @@ class TaskController extends Controller
             'priority' => 'nullable|string|in:low,medium,high,urgent',
             'assigned_to' => 'nullable|exists:users,id',
             'data' => 'nullable|array',
+            'associations' => 'nullable|array',
         ]);
 
         $task = Task::create(array_merge($validated, [
@@ -96,6 +97,19 @@ class TaskController extends Controller
             'status' => $validated['status'] ?? 'open',
             'priority' => $validated['priority'] ?? 'medium',
         ]));
+
+        if (!empty($validated['associations'])) {
+            foreach ($validated['associations'] as $assoc) {
+                if (isset($assoc['type'], $assoc['id'])) {
+                    \App\Models\Association::create([
+                        'object_type_a' => 'task',
+                        'object_id_a' => $task->id,
+                        'object_type_b' => \Illuminate\Support\Str::singular($assoc['type']),
+                        'object_id_b' => $assoc['id'],
+                    ]);
+                }
+            }
+        }
 
         return response()->json($task, 201);
     }

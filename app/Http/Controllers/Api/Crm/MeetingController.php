@@ -64,7 +64,14 @@ class MeetingController extends Controller
      *              @OA\Property(property="description", type="string"),
      *              @OA\Property(property="scheduled_at", type="string", format="date-time"),
      *              @OA\Property(property="duration_minutes", type="integer", example=60),
-     *              @OA\Property(property="meeting_type", type="string", example="in_person")
+     *              @OA\Property(property="meeting_type", type="string", example="in_person"),
+     *              @OA\Property(property="location", type="string", example="Office Room 302"),
+     *              @OA\Property(property="host_id", type="integer", description="ID of the user hosting the meeting"),
+     *              @OA\Property(property="data", type="object", description="Additional JSON data"),
+     *              @OA\Property(property="associations", type="array", @OA\Items(
+     *                  @OA\Property(property="type", type="string", example="contacts"),
+     *                  @OA\Property(property="id", type="integer", example=1)
+     *              ))
      *          )
      *      ),
      *      @OA\Response(response=201, description="Created")
@@ -81,6 +88,7 @@ class MeetingController extends Controller
             'location' => 'nullable|string',
             'host_id' => 'nullable|exists:users,id', // User/Agent ID
             'data' => 'nullable|array',
+            'associations' => 'nullable|array',
         ]);
 
         $meeting = Meeting::create(array_merge($validated, [
@@ -88,7 +96,20 @@ class MeetingController extends Controller
             'host_id' => $validated['host_id'] ?? Auth::id(),
         ]));
 
-        return response()->json($meeting, 201);
+        if (!empty($validated['associations'])) {
+            foreach ($validated['associations'] as $assoc) {
+                if (isset($assoc['type'], $assoc['id'])) {
+                    \App\Models\Association::create([
+                        'object_type_a' => 'meeting',
+                        'object_id_a' => $meeting->id,
+                        'object_type_b' => \Illuminate\Support\Str::singular($assoc['type']),
+                        'object_id_b' => $assoc['id'],
+                    ]);
+                }
+            }
+        }
+
+        return response()->json(['data' => $meeting], 201);
     }
 
     /**

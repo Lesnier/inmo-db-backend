@@ -147,8 +147,11 @@ class AuthController extends Controller
                 case 'user':
                     $role = 2;
                     break;
-                case 'agent':
+                case 'private_person':
                     $role = 3; // Or use a specific agent role ID
+                    break;
+                case 'real_estate_agent':
+                    $role = 4;
                     break;
                 default:
                     $role = 2;

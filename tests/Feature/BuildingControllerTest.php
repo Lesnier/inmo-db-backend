@@ -55,7 +55,7 @@ class BuildingControllerTest extends TestCase
         $response = $this->postJson('/api/real-estate/buildings', $payload);
 
         $response->assertStatus(201);
-        $this->assertMatchesSchema($response->json(), TestSchemas::BUILDING);
+        $this->assertMatchesSchema($response->json('data'), TestSchemas::BUILDING);
     }
 
     public function test_can_show_building()
@@ -65,6 +65,6 @@ class BuildingControllerTest extends TestCase
         $response = $this->getJson("/api/real-estate/buildings/{$building->id}");
 
         $response->assertStatus(200);
-        $this->assertMatchesSchema($response->json(), TestSchemas::BUILDING);
+        $this->assertMatchesSchema($response->json('data'), TestSchemas::BUILDING);
     }
 }

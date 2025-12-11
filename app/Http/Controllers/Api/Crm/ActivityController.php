@@ -89,17 +89,22 @@ class ActivityController extends Controller
         ]));
 
         // Handle associations if provided
+        // Handle associations if provided
         if (!empty($validated['associations'])) {
             foreach ($validated['associations'] as $assoc) {
-                // Logic to associate: needs specific logic or use AssociationController
-                // For now assuming client handles associations separately or we implement simple logic here
-                // if we have a generic 'associations' table.
-                // But typically we use specific endpoint for associations.
-                // Ignoring for now to keep it simple, typically associations are made via ID in route or separate call.
+                // Basic validation for structure
+                if (isset($assoc['type'], $assoc['id'])) {
+                    \App\Models\Association::create([
+                        'object_type_a' => 'activity',
+                        'object_id_a' => $activity->id,
+                        'object_type_b' => \Illuminate\Support\Str::singular($assoc['type']),
+                        'object_id_b' => $assoc['id'],
+                    ]);
+                }
             }
         }
 
-        return response()->json($activity, 201);
+        return response()->json(['data' => $activity], 201);
     }
 
     /**
@@ -196,7 +201,7 @@ class ActivityController extends Controller
 
         $activity->update($validated);
 
-        return response()->json($activity);
+        return response()->json(['data' => $activity]);
     }
 
     /**

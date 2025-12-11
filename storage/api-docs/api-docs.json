@@ -10,7 +10,7 @@
     },
     "servers": [
         {
-            "url": "http://my-default-host.com",
+            "url": "http://localhost:8000",
             "description": "Demo API Server"
         }
     ],
@@ -347,6 +347,41 @@
                 ]
             }
         },
+        "/api/real-estate/buildings/mine": {
+            "get": {
+                "tags": [
+                    "Real Estate Buildings"
+                ],
+                "summary": "List My Buildings",
+                "operationId": "7efefd9414f40b1bdef57b72a7153cf3",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of my buildings"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/real-estate/buildings/{id}": {
             "get": {
                 "tags": [
@@ -460,9 +495,24 @@
                 "operationId": "a35416c6882c5dee885c38e0a99e3177",
                 "responses": {
                     "200": {
-                        "description": "List of chats"
+                        "description": "List of chats",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             },
             "post": {
                 "tags": [
@@ -495,9 +545,21 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Chat created"
+                        "description": "Chat created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/chat/rooms/{id}/messages": {
@@ -519,9 +581,24 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "List of messages"
+                        "description": "List of messages",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             },
             "post": {
                 "tags": [
@@ -560,9 +637,21 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Message sent"
+                        "description": "Message sent",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/crm/activities": {
@@ -1055,6 +1144,230 @@
                                 }
                             }
                         }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/crm/companies": {
+            "get": {
+                "tags": [
+                    "CRM Companies"
+                ],
+                "summary": "List companies",
+                "operationId": "5910528499624ad33b4bc28e71104162",
+                "responses": {
+                    "200": {
+                        "description": "List of companies",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 10
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "Acme Corp"
+                                                    },
+                                                    "industry": {
+                                                        "type": "string",
+                                                        "example": "Technology"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "CRM Companies"
+                ],
+                "summary": "Create company",
+                "operationId": "9fcc264978957d825f4a2cc01809a7b3",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Acme Corp"
+                                    },
+                                    "industry": {
+                                        "type": "string",
+                                        "example": "Technology"
+                                    },
+                                    "domain": {
+                                        "type": "string",
+                                        "example": "acme.com"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "+1 555 0123"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "contact@acme.com"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "123 Main St"
+                                    },
+                                    "city": {
+                                        "type": "string",
+                                        "example": "Metropolis"
+                                    },
+                                    "state": {
+                                        "type": "string",
+                                        "example": "NY"
+                                    },
+                                    "country": {
+                                        "type": "string",
+                                        "example": "USA"
+                                    },
+                                    "owner_id": {
+                                        "description": "User ID of the owner",
+                                        "type": "integer"
+                                    },
+                                    "data": {
+                                        "description": "Additional JSON data",
+                                        "type": "object"
+                                    },
+                                    "associations": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string",
+                                                    "example": "contacts"
+                                                },
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/crm/companies/{id}": {
+            "get": {
+                "tags": [
+                    "CRM Companies"
+                ],
+                "summary": "Get company details",
+                "operationId": "517c6b05fd591b7f7cb553e4d21d1784",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Company details"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "CRM Companies"
+                ],
+                "summary": "Update company",
+                "operationId": "994cbaeb4913259b9c73117d295feaba",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "CRM Companies"
+                ],
+                "summary": "Delete company",
+                "operationId": "cf17d7df9a15ec66805640a60b65df3e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted"
                     }
                 },
                 "security": [
@@ -1912,6 +2225,34 @@
                                     "meeting_type": {
                                         "type": "string",
                                         "example": "in_person"
+                                    },
+                                    "location": {
+                                        "type": "string",
+                                        "example": "Office Room 302"
+                                    },
+                                    "host_id": {
+                                        "description": "ID of the user hosting the meeting",
+                                        "type": "integer"
+                                    },
+                                    "data": {
+                                        "description": "Additional JSON data",
+                                        "type": "object"
+                                    },
+                                    "associations": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string",
+                                                    "example": "contacts"
+                                                },
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
                                     }
                                 },
                                 "type": "object"
@@ -2131,6 +2472,10 @@
                                                 "probability": {
                                                     "type": "integer",
                                                     "example": 10
+                                                },
+                                                "position": {
+                                                    "type": "integer",
+                                                    "example": 0
                                                 }
                                             },
                                             "type": "object"
@@ -2651,6 +2996,22 @@
                                             "high"
                                         ],
                                         "example": "medium"
+                                    },
+                                    "associations": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string",
+                                                    "example": "contacts"
+                                                },
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
                                     }
                                 },
                                 "type": "object"
@@ -2932,6 +3293,167 @@
                 ]
             }
         },
+        "/api/media": {
+            "get": {
+                "tags": [
+                    "Media"
+                ],
+                "summary": "List media",
+                "operationId": "5296954770d6dfe2611afda3f195eca3",
+                "responses": {
+                    "200": {
+                        "description": "List of media",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "url": {
+                                                        "type": "string"
+                                                    },
+                                                    "type": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Media"
+                ],
+                "summary": "Create media record (and associations)",
+                "description": "Create a media record (e.g. from an existing URL) and associate it.",
+                "operationId": "9430980f10901899bfff1032ecc021e2",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "url",
+                                    "type"
+                                ],
+                                "properties": {
+                                    "url": {
+                                        "type": "string",
+                                        "example": "https://example.com/image.jpg"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "example": "image"
+                                    },
+                                    "model_id": {
+                                        "description": "Optional parent ID",
+                                        "type": "integer"
+                                    },
+                                    "model_type": {
+                                        "description": "Optional parent type",
+                                        "type": "string"
+                                    },
+                                    "meta": {
+                                        "description": "Optional metadata",
+                                        "type": "object"
+                                    },
+                                    "associations": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/media/{id}": {
+            "get": {
+                "tags": [
+                    "Media"
+                ],
+                "summary": "Get media details",
+                "operationId": "7a771f65d33d562ae63e46dd1a26465a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Media details"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Media"
+                ],
+                "summary": "Delete media",
+                "operationId": "0540d2d67545ecdfe21868f083f2d186",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/real-estate/search": {
             "get": {
                 "tags": [
@@ -3177,33 +3699,6 @@
                 "responses": {
                     "200": {
                         "description": "Updated"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            },
-            "delete": {
-                "tags": [
-                    "Real Estate Properties"
-                ],
-                "summary": "Delete Property",
-                "operationId": "da3041086b18fb63d767cd89d71e32f5",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Deleted"
                     }
                 },
                 "security": [
@@ -3670,6 +4165,11 @@
                             "$ref": "#/components/schemas/PipelineStage"
                         }
                     },
+                    "user_id": {
+                        "description": "Owner User ID (null for Global)",
+                        "type": "integer",
+                        "nullable": true
+                    },
                     "created_at": {
                         "type": "string",
                         "format": "date-time"
@@ -3846,6 +4346,14 @@
                 },
                 "type": "object"
             }
+        },
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "description": "Enter token in format (Bearer <token>)",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
         }
     },
     "tags": [
@@ -3870,6 +4378,10 @@
             "description": "Statistical endpoints for Agent/Pipeline performance"
         },
         {
+            "name": "CRM Companies",
+            "description": "API Endpoints for Company Management"
+        },
+        {
             "name": "CRM - Deals",
             "description": "API Endpoints for managing Deals/Opportunities"
         },
@@ -3888,6 +4400,10 @@
         {
             "name": "CRM - Tickets",
             "description": "API Endpoints for managing Support Tickets/Requirements"
+        },
+        {
+            "name": "Media",
+            "description": "API Endpoints for Media Management"
         },
         {
             "name": "Real Estate Properties",

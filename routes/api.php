@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\PlanController;
 use App\Http\Controllers\Api\FavoriteController;
 use App\Http\Controllers\Api\AgentController;
 use App\Http\Controllers\Api\ActivityController;
+use App\Http\Controllers\Api\MediaController;
 
 use App\Http\Controllers\Api\BuildingController;
 /*
@@ -41,14 +42,16 @@ Route::middleware('auth:sanctum')->group(function () {
 // Real Estate API - Public routes
 Route::get('/real-estate', [PropertyController::class, 'index']);
 Route::get('/real-estate/search', [PropertyController::class, 'search']);
-Route::get('/real-estate/{property}', [PropertyController::class, 'show']);
+
+// Specific routes MUST be before wildcard {property}
 Route::get('/real-estate/categories', [CategoryController::class, 'index']);
 Route::get('/real-estate/plans', [PlanController::class, 'index']);
-Route::post('/real-estate/{property}/contact', [PropertyController::class, 'sendContact']);
 
 // Buildings - Public routes
 Route::get('/real-estate/buildings', [BuildingController::class, 'index']);
 Route::get('/real-estate/buildings/{building}', [BuildingController::class, 'show']);
+
+// {property} routes moved to end to avoid collision with /mine
 
 // Real Estate API - Auth routes
 Route::middleware('auth:sanctum')->group(function () {
@@ -89,6 +92,13 @@ Route::middleware('auth:sanctum')->group(function () {
         // Helpers
         Route::post('/contacts/{id}/assign', [\App\Http\Controllers\Api\Crm\ContactController::class, 'assign']);
         Route::get('/contacts/{id}/analytics', [\App\Http\Controllers\Api\Crm\ContactController::class, 'analytics']);
+
+        // Companies
+        Route::get('/companies', [\App\Http\Controllers\Api\Crm\CompanyController::class, 'index']);
+        Route::post('/companies', [\App\Http\Controllers\Api\Crm\CompanyController::class, 'store']);
+        Route::get('/companies/{id}', [\App\Http\Controllers\Api\Crm\CompanyController::class, 'show']);
+        Route::put('/companies/{id}', [\App\Http\Controllers\Api\Crm\CompanyController::class, 'update']);
+        Route::delete('/companies/{id}', [\App\Http\Controllers\Api\Crm\CompanyController::class, 'destroy']);
 
         // Deals
         Route::get('/deals', [\App\Http\Controllers\Api\Crm\DealController::class, 'index']);
@@ -153,10 +163,15 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Buildings - Auth routes
     Route::post('/real-estate/buildings', [BuildingController::class, 'store']);
+    Route::get('/real-estate/buildings/mine', [BuildingController::class, 'myBuildings']);
     Route::put('/real-estate/buildings/{building}', [BuildingController::class, 'update']);
     Route::delete('/real-estate/buildings/{building}', [BuildingController::class, 'destroy']);
     Route::get('/real-estate/buildings/{building}/analytics', [BuildingController::class, 'analytics']);
 });
+
+// Wildcard routes must come LAST
+Route::get('/real-estate/{property}', [PropertyController::class, 'show']);
+Route::post('/real-estate/{property}/contact', [PropertyController::class, 'sendContact']);
 
 
 
@@ -169,4 +184,20 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::post('/real-estate/plans', [PlanController::class, 'store']);
     Route::put('/real-estate/plans/{plan}', [PlanController::class, 'update']);
     Route::delete('/real-estate/plans/{plan}', [PlanController::class, 'destroy']);
+});
+
+// Generic Media Routes (Auth required)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/media', [MediaController::class, 'index']);
+    Route::post('/media', [MediaController::class, 'store']);
+    Route::get('/media/{id}', [MediaController::class, 'show']);
+    Route::delete('/media/{id}', [MediaController::class, 'destroy']);
+});
+
+// Chat Routes (Auth required)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/chat/rooms', [\App\Http\Controllers\Api\Chat\ChatController::class, 'index']);
+    Route::post('/chat/rooms', [\App\Http\Controllers\Api\Chat\ChatController::class, 'store']);
+    Route::get('/chat/rooms/{id}/messages', [\App\Http\Controllers\Api\Chat\ChatController::class, 'messages']);
+    Route::post('/chat/rooms/{id}/messages', [\App\Http\Controllers\Api\Chat\ChatController::class, 'sendMessage']);
 });

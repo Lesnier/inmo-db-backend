@@ -172,12 +172,26 @@ class ContactController extends Controller
             'state' => 'nullable|string',
             'city' => 'nullable|string',
             'address' => 'nullable|string',
+            'associations' => 'nullable|array',
         ]);
 
         $contact = Contact::create(array_merge($validated, [
             'user_id' => Auth::id(), // creator (legacy field, maybe deprecate in favor of owner_id?)
             'owner_id' => $validated['owner_id'] ?? Auth::id(), // Default to me if not specified
         ]));
+
+        if (!empty($validated['associations'])) {
+            foreach ($validated['associations'] as $assoc) {
+                if (isset($assoc['type'], $assoc['id'])) {
+                    \App\Models\Association::create([
+                        'object_type_a' => 'contact',
+                        'object_id_a' => $contact->id,
+                        'object_type_b' => \Illuminate\Support\Str::singular($assoc['type']),
+                        'object_id_b' => $assoc['id'],
+                    ]);
+                }
+            }
+        }
 
         $contact->refresh();
 

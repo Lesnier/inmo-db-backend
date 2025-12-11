@@ -19,7 +19,7 @@ class PlanControllerTest extends TestCase
         $response = $this->getJson('/api/real-estate/plans');
 
         $response->assertStatus(200);
-        $this->assertMatchesSchema($response->json(), [
+        $this->assertMatchesSchema($response->json('data'), [
             TestSchemas::PLAN
         ]);
     }
